@@ -24,7 +24,7 @@ import com.ajay.bulksms.ui.theme.BulkSMSTheme
 @Composable
 fun ContactEdit(
     initials: String = "AK",
-    name: String? = "Ajay",
+    name: String? = "Ajay M",
     mobileNumber: String = "1234567890"
 ) {
     Surface(
