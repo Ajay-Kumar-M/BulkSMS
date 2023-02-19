@@ -282,12 +282,12 @@ fun ChooseContactsList(
         }
 
         var totalHeight = 55
-        var layoutWidth = constraints.maxWidth
+        val layoutWidth = constraints.maxWidth
 
         var xPositionCalc = 0
         placeables.forEach { placeable ->
 
-            var placeableWidth = placeable.width
+            val placeableWidth = placeable.width
 
             if (layoutWidth < placeableWidth + xPositionCalc) {
                 xPositionCalc = 0
@@ -306,7 +306,7 @@ fun ChooseContactsList(
             // Place children in the parent layout
             placeables.forEach { placeable ->
 
-                var placeableWidth = placeable.width
+                val placeableWidth = placeable.width
 
                 if (layoutWidth < placeableWidth + xPosition) {
                     xPosition = 0

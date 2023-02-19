@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun OutlinedTextFieldUI() {
 
-    var message = remember {
+    val message = remember {
         mutableStateOf(TextFieldValue())
     }
 
