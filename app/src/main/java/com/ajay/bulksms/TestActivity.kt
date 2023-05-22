@@ -1,9 +1,5 @@
 package com.ajay.bulksms
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -123,7 +119,7 @@ fun TestView() {
                         .padding(0.dp, 40.dp, 0.dp, 0.dp)
 
                 ){
-                    OutlinedTextFieldUI()
+                    //OutlinedTextFieldUI("")
                 }
                 Column(
                     modifier = Modifier

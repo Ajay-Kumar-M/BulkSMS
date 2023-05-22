@@ -1,5 +1,6 @@
 package com.ajay.bulksms.components
 
+import android.telephony.SmsMessage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun OutlinedTextFieldUI() {
+fun OutlinedTextFieldUI(smsMessage: String, onMessageChanged: (TextFieldValue) -> Unit) {
 
-    val message = remember {
-        mutableStateOf(TextFieldValue())
-    }
+//    val message = remember {
+//        mutableStateOf(TextFieldValue(smsMessage))
+//    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -36,10 +37,10 @@ fun OutlinedTextFieldUI() {
                 .background(Color.White, RoundedCornerShape(22.dp))
                 .height(120.dp),
             shape = RoundedCornerShape(22.dp),
-            value = message.value,
-            onValueChange = { message.value = it },
+            value = TextFieldValue(smsMessage),
+            onValueChange = { onMessageChanged(it) }, //{ message.value = it },
             maxLines = 6,
-            label = { Text(text = "Please enter the message !") },
+            label = { Text("Please enter the message !") },
             textStyle = MaterialTheme.typography.caption,
 
             )

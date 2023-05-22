@@ -8,6 +8,8 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -24,11 +26,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ajay.bulksms.MainViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
 
 @Composable
-fun MainView() {
+fun MainView(
+    viewModel: MainViewModel = viewModel(),
+    startRange: Number?=null,
+    endRange: Number?=null,
+    smsMessage: String = ""
+) {
+    val contacts by viewModel.contactsList.collectAsState()
+    val smsMessage = viewModel.smsMessage.collectAsState()
+
     //var offset = remember { derivedStateOf(0) }
     Surface(
         modifier = Modifier
@@ -118,21 +130,11 @@ fun MainView() {
                                     .verticalScroll(rememberScrollState())
                                     .padding(8.dp)
                             ) {
-                                repeat(100) {
+                                repeat(contacts.size) {
                                     ContactEdit(
-                                        initials = "82",
-                                        name = null,
-                                        mobileNumber = "+91 2398765432"
-                                    )
-                                    ContactEdit(
-                                        initials = "AK",
-                                        name = "Ajay",
-                                        mobileNumber = "+91 3445"
-                                    )
-                                    ContactEdit(
-                                        initials = "82",
-                                        name = null,
-                                        mobileNumber = "+91 2398765432"
+                                        initials = contacts[it].initials,
+                                        name = contacts[it].name,
+                                        mobileNumber = contacts[it].mobileNumber
                                     )
                                 }
                             }
@@ -196,6 +198,7 @@ fun MainView() {
                                     modifier = Modifier
                                         .weight(1.0f)
                                         .border(0.5.dp, color = Color.Black),
+                                    "mainViewData.startRange"
                                 )
 
                                 Text(
@@ -209,6 +212,7 @@ fun MainView() {
                                     modifier = Modifier
                                         .weight(1.0f)
                                         .border(0.5.dp, color = Color.Black),
+                                    "mainViewData.endRange"
                                 )
                             }
                         }
@@ -218,7 +222,10 @@ fun MainView() {
                                 .padding(10.dp, 40.dp, 10.dp, 10.dp)
 
                         ) {
-                            OutlinedTextFieldUI()
+                            OutlinedTextFieldUI(
+                                smsMessage.value,
+                                onMessageChanged = { viewModel.changeSmsMessage(it.text) }
+                            )
                         }
 
                         Column(
@@ -281,7 +288,7 @@ fun ChooseContactsList(
             measurable.measure(constraints)
         }
 
-        var totalHeight = 55
+        var totalHeight = 120
         val layoutWidth = constraints.maxWidth
 
         var xPositionCalc = 0

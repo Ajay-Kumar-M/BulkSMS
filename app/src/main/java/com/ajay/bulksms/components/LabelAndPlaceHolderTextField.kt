@@ -16,9 +16,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 fun LabelAndPlaceHolderTextField(
     text: String,
     placeHolder: String,
-    modifier: Modifier
+    modifier: Modifier,
+    textContent: String
 ) {
-    val text1 = remember { mutableStateOf(TextFieldValue("")) }
+    val text1 = remember { mutableStateOf(TextFieldValue(textContent)) }
     androidx.compose.material.TextField(
         value = text1.value,
         onValueChange = {
