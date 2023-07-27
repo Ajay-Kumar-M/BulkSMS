@@ -36,12 +36,9 @@ import com.ajay.bulksms.ui.theme.BulkSMSTheme
 fun MainView(
     viewModel: MainViewModel = viewModel()
 ) {
-//    val contacts by viewModel.contactsList.collectAsState()
-    val smsMessage = viewModel.smsMessage.value
-    val startRange = viewModel.startRange.value
-    val endRange = viewModel.endRange.value
-
-    //var offset = remember { derivedStateOf(0) }
+    val smsMessage = viewModel.smsMessage
+    val startRange = viewModel.startRange
+    val endRange = viewModel.endRange
 
     Surface(
         modifier = Modifier
