@@ -1,15 +1,26 @@
 package com.ajay.bulksms.components
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -70,7 +81,6 @@ fun MainView(
                                         drawRect(brush, blendMode = BlendMode.SrcAtop)
                                     }
                                 }
-
                         )
 
                         Spacer(modifier = Modifier.weight(1.0f))
@@ -101,7 +111,6 @@ fun MainView(
                                 text = " Choose contacts",
                                 fontSize = 20.sp,
                                 textAlign = TextAlign.Center,
-                                //fontWeight = FontWeight.Bold ,
                                 color = Color.Gray,
                                 modifier = Modifier
                                     .padding(8.dp, 0.dp)
@@ -226,12 +235,10 @@ fun MainView(
                             modifier = Modifier
                                 .background(Color.White)
                                 .padding(10.dp, 40.dp, 10.dp, 10.dp)
-
                         ) {
                             OutlinedTextFieldUI(
                                 smsMessage,
                                 onMessageChanged = { viewModel.changeSmsMessage(it) }
-
                             )
                         }
 
@@ -254,7 +261,6 @@ fun MainView(
                                     bottom = 10.dp
                                 )
                             ) {
-                                //Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                 Text(
                                     text = "Send Message",
                                     fontSize = 20.sp,

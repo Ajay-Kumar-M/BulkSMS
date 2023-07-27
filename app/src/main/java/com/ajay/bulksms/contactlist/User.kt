@@ -6,9 +6,3 @@ data class User(
     val name: String,
     val mobileNumber: String,
 )
-
-//data class MainViewData(
-//    var startRange: String = "",
-//    var endRange: String = "",
-//    var smsMessage: String = ""
-//)

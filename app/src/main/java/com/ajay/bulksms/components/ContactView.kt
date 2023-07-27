@@ -72,11 +72,8 @@ fun ContactView(
                         contentDescription = "",
                         tint = Color.White
                     )
-
                 }
-            }
-            else
-            {
+            } else {
                 Surface(
                     modifier = Modifier.size(60.dp)
                         .padding(5.dp),
@@ -99,7 +96,6 @@ fun ContactView(
                             modifier = Modifier.weight(1.0f)
                         )
                     }
-
                 }
             }
 

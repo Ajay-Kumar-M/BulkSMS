@@ -29,22 +29,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//@Composable
-//fun Greeting() {
-//    Row(
-//        modifier = Modifier.padding(horizontal = 8.dp),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.text_snippet),
-//            contentDescription = null,
-//            modifier = Modifier.padding(end = 8.dp)
-//        )
-//        Text(text = "Extract Contact from CSV")
-//    }
-//
-//}
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
