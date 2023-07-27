@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun OutlinedTextFieldUI(smsMessage: String, onMessageChanged: (TextFieldValue) -> Unit) {
+fun OutlinedTextFieldUI(smsMessage: TextFieldValue, onMessageChanged: (TextFieldValue) -> Unit) {
 
 //    val message = remember {
 //        mutableStateOf(TextFieldValue(smsMessage))
@@ -37,7 +37,7 @@ fun OutlinedTextFieldUI(smsMessage: String, onMessageChanged: (TextFieldValue) -
                 .background(Color.White, RoundedCornerShape(22.dp))
                 .height(120.dp),
             shape = RoundedCornerShape(22.dp),
-            value = TextFieldValue(smsMessage),
+            value = smsMessage,
             onValueChange = { onMessageChanged(it) }, //{ message.value = it },
             maxLines = 6,
             label = { Text("Please enter the message !") },

@@ -17,13 +17,14 @@ fun LabelAndPlaceHolderTextField(
     text: String,
     placeHolder: String,
     modifier: Modifier,
-    textContent: String
+    textContent: TextFieldValue,
+    onValueChanged: (TextFieldValue) -> Unit
 ) {
-    val text1 = remember { mutableStateOf(TextFieldValue(textContent)) }
+    val text1 = remember { mutableStateOf(textContent) }
     androidx.compose.material.TextField(
-        value = text1.value,
+        value = textContent,
         onValueChange = {
-            text1.value = it
+            onValueChanged(it)
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         label = { Text(text = text) },

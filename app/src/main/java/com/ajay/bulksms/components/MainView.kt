@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -33,15 +34,15 @@ import com.ajay.bulksms.ui.theme.BulkSMSTheme
 
 @Composable
 fun MainView(
-    viewModel: MainViewModel = viewModel(),
-    startRange: Number?=null,
-    endRange: Number?=null,
-    smsMessage: String = ""
+    viewModel: MainViewModel = viewModel()
 ) {
-    val contacts by viewModel.contactsList.collectAsState()
-    val smsMessage = viewModel.smsMessage.collectAsState()
+//    val contacts by viewModel.contactsList.collectAsState()
+    val smsMessage = viewModel.smsMessage.value
+    val startRange = viewModel.startRange.value
+    val endRange = viewModel.endRange.value
 
     //var offset = remember { derivedStateOf(0) }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,15 +131,20 @@ fun MainView(
                                     .verticalScroll(rememberScrollState())
                                     .padding(8.dp)
                             ) {
-                                repeat(contacts.size) {
-                                    ContactEdit(
-                                        initials = contacts[it].initials,
-                                        name = contacts[it].name,
-                                        mobileNumber = contacts[it].mobileNumber
-                                    )
+
+                                repeat(viewModel.contactsList.size) {
+                                    val contact = viewModel.contactsList[it]
+                                    key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
+                                        ContactEdit(
+                                            initials = contact.initials,
+                                            name = contact.name,
+                                            mobileNumber = contact.mobileNumber
+                                        ) {
+                                            viewModel.deleteUser(contact)
+                                        }
+                                    }
                                 }
                             }
-
                         }
 
                         Column(
@@ -198,7 +204,8 @@ fun MainView(
                                     modifier = Modifier
                                         .weight(1.0f)
                                         .border(0.5.dp, color = Color.Black),
-                                    "mainViewData.startRange"
+                                    startRange,
+                                    onValueChanged = { viewModel.changeStartRange(it) }
                                 )
 
                                 Text(
@@ -212,10 +219,12 @@ fun MainView(
                                     modifier = Modifier
                                         .weight(1.0f)
                                         .border(0.5.dp, color = Color.Black),
-                                    "mainViewData.endRange"
+                                    endRange,
+                                    onValueChanged = { viewModel.changeEndRange(it) }
                                 )
                             }
                         }
+
                         Column(
                             modifier = Modifier
                                 .background(Color.White)
@@ -223,8 +232,9 @@ fun MainView(
 
                         ) {
                             OutlinedTextFieldUI(
-                                smsMessage.value,
-                                onMessageChanged = { viewModel.changeSmsMessage(it.text) }
+                                smsMessage,
+                                onMessageChanged = { viewModel.changeSmsMessage(it) }
+
                             )
                         }
 
@@ -262,6 +272,7 @@ fun MainView(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

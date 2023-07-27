@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,8 @@ import com.ajay.bulksms.ui.theme.BulkSMSTheme
 fun ContactEdit(
     initials: String = "AK",
     name: String? = "Ajay M",
-    mobileNumber: String = "1234567890"
+    mobileNumber: String = "1234567890",
+    onRemoveClicked: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -87,6 +89,7 @@ fun ContactEdit(
                         modifier = Modifier
                             .size(15.dp)
                             .align(Alignment.CenterVertically)
+                            .clickable { onRemoveClicked() }
                     )
                 }
 
@@ -96,6 +99,7 @@ fun ContactEdit(
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun ContactEditPreview() {
@@ -107,3 +111,4 @@ fun ContactEditPreview() {
         )
     }
 }
+*/
