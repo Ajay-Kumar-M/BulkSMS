@@ -106,4 +106,5 @@ dependencies {
     // Optional - Integration with RxJava
     implementation 'androidx.compose.runtime:runtime-rxjava2'
 
+    implementation 'com.google.accompanist:accompanist-permissions:0.30.1'
 }

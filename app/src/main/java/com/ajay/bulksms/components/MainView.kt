@@ -42,7 +42,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ajay.bulksms.MainViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainView(
     viewModel: MainViewModel = viewModel()
@@ -50,6 +56,10 @@ fun MainView(
     val smsMessage = viewModel.smsMessage
     val startRange = viewModel.startRange
     val endRange = viewModel.endRange
+
+    val sendSMSPermissionState = rememberPermissionState(
+        android.Manifest.permission.SEND_SMS
+    )
 
     Surface(
         modifier = Modifier
@@ -251,7 +261,13 @@ fun MainView(
                             verticalArrangement = Arrangement.Bottom
                         ) {
                             Button(
-                                onClick = { /* ... */ },
+                                onClick = {
+                                    if (sendSMSPermissionState.status.isGranted) {
+                                        viewModel.sendSMSTemp()
+                                    } else {
+                                        sendSMSPermissionState.launchPermissionRequest()
+                                    }
+                                },
                                 modifier = Modifier.align(CenterHorizontally),
                                 // Uses ButtonDefaults.ContentPadding by default
                                 contentPadding = PaddingValues(
@@ -339,4 +355,19 @@ fun ChooseContactsList(
             }
         }
     }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun CameraPermission(
+    permissionState: PermissionState,
+) {
+
+//    PermissionRequired(
+//        permissionState = permissionState,
+//        permissionNotGrantedContent = { /* ... */ },
+//        permissionNotAvailableContent = { /* ... */ }
+//    ) {
+//        // Open Camera
+//    }
 }

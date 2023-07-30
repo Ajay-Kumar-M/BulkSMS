@@ -1,12 +1,23 @@
 package com.ajay.bulksms
 
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.pm.PackageManager
+import android.view.View
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.ajay.bulksms.contactlist.User
+import com.ajay.bulksms.services.remote.RemoteService
+import com.ajay.bulksms.services.smsservice.SMSService
 
 class MainViewModel : ViewModel() {
+
     private var _contactsList = mutableListOf<User>().toMutableStateList()
     val contactsList: List<User>
         get() = _contactsList.toList()
@@ -22,6 +33,11 @@ class MainViewModel : ViewModel() {
     private val _endRange = mutableStateOf(TextFieldValue(""))
     val endRange: TextFieldValue
         get() = _endRange.value
+
+    private val smsService = SMSService(RemoteService())
+
+    private val permissionRequest = 101
+
     
     fun addContact(initials: String, name: String, mobileNumber: String) {
 //        _contactsList.value.add(User(1,initials, name, mobileNumber))
@@ -65,6 +81,19 @@ class MainViewModel : ViewModel() {
     fun changeSmsMessage(smsMessageNew: TextFieldValue) {
         _smsMessage.value = smsMessageNew
     }
+
+    fun sendSMS() {
+        val isMessageDelivered = smsService.sendSMS(
+            to = listOf("+918973745057"),
+            message = "Hai all"
+        )
+        println(isMessageDelivered)
+    }
+
+    fun sendSMSTemp(){
+
+    }
+
 }
 
 
@@ -98,4 +127,32 @@ println("dddd "+smsMessage.value)
         }
         return -1
     }
+
+
+public void sendLongSMS() {
+    String phoneNumber = "0123456789";
+    String message = "Hello World! Now we are going to demonstrate " +
+        "how to send a message with more than 160 characters from your Android application.";
+    SmsManager smsManager = SmsManager.getDefault();
+    ArrayList<String> parts = smsManager.divideMessage(message);
+    smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
+}
+
+
+
+    fun smsPermissionCheck(context: Context){
+//        val permissionCheck = ContextCompat.checkSelfPermission(getApplication(), android.Manifest.permission.SEND_SMS)
+//        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+//            //myMessage()
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                context, arrayOf(android.Manifest.permission.SEND_SMS),
+//                permissionRequest)
+//        }
+    }
+
+ (app: Application)
+    : AndroidViewModel(app) {
+    //: ViewModel() { //AndroidViewModel(Application()) {
+
 */
