@@ -1,16 +1,10 @@
 package com.ajay.bulksms
 
-import android.app.Activity
-import android.app.Application
-import android.content.Context
-import android.content.pm.PackageManager
-import android.view.View
+import android.telephony.SmsManager
+import android.text.TextUtils
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.ajay.bulksms.contactlist.User
 import com.ajay.bulksms.services.remote.RemoteService
@@ -36,11 +30,10 @@ class MainViewModel : ViewModel() {
 
     private val smsService = SMSService(RemoteService())
 
-    private val permissionRequest = 101
 
-    
     fun addContact(initials: String, name: String, mobileNumber: String) {
 //        _contactsList.value.add(User(1,initials, name, mobileNumber))
+        TODO()
     }
 
     init {
@@ -90,11 +83,28 @@ class MainViewModel : ViewModel() {
         println(isMessageDelivered)
     }
 
-    fun sendSMSTemp(){
+    fun sendSMSTemp() : String {
+        val editTextNumber = "8508115249"
+        val myNumber: String = editTextNumber.trim()
+        val myMsg: String = smsMessage.text.trim()
 
+        val finalMessage: String = if (myNumber == "" || myMsg == "") {
+            "Field cannot be empty"
+        } else {
+            if (TextUtils.isDigitsOnly(myNumber)) {
+                val smsManager: SmsManager = SmsManager.getDefault()
+                smsManager.sendTextMessage(myNumber, null, myMsg, null, null)
+                "Message Sent"
+            } else {
+                "Please enter the correct number"
+            }
+        }
+        return finalMessage
     }
 
 }
+
+
 
 
 /*
@@ -103,11 +113,8 @@ Bug codes
 
 Text change did not work when using String type -> TextFieldValue
 fun changeSmsMessage(smsMessageNew: String) {
-println("aaaa "+smsMessageNew)
-println("bbbb "+smsMessage.value)
+
     _smsMessage.value = smsMessageNew
-println("cccc "+smsMessageNew)
-println("dddd "+smsMessage.value)
 }
 
         val removeIndex = _contactsList.filter { (id) -> id.equals(removeID) }

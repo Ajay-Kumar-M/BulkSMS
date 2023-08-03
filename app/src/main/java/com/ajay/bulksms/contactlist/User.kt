@@ -6,3 +6,11 @@ data class User(
     val name: String,
     val mobileNumber: String,
 )
+
+data class Contact(
+    val id: String,
+    val initials: String,
+    val displayName: String,
+    val phoneNumber: String,
+    val isSelected: Boolean
+)

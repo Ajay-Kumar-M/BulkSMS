@@ -1,16 +1,8 @@
 package com.ajay.bulksms.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+class Temp {
 
-class temp {
+
     /*Row(
     modifier = Modifier
     .fillMaxWidth(1.0f)
@@ -149,4 +141,97 @@ LazyVerticalGrid(
 //                                    contentDescription = "Favorite",
 //                                    modifier = Modifier.size(ButtonDefaults.IconSize)
 //                                )
+
+    /*
+
+    @Composable
+fun rememberLifecycleEvent(lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current): Lifecycle.Event {
+    var lifecycleEvent by remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
+    DisposableEffect(lifecycleOwner) {
+        val lifecycleObserver = LifecycleEventObserver { _, event ->
+            lifecycleEvent = event
+        }
+
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+    return  lifecycleEvent
+}
+
+    val lifecycleEvent = rememberLifecycleEvent()
+    LaunchedEffect(lifecycleEvent) {
+        if ((lifecycleEvent == Lifecycle.Event.ON_CREATE)||(lifecycleEvent == Lifecycle.Event.ON_RESUME)) {
+
+
+        }
+    }
+
+
+@Composable
+fun <viewModel: LifecycleObserver> viewModel.observeLifecycleEvents(lifecycle: Lifecycle) {
+    DisposableEffect(lifecycle) {
+        lifecycle.addObserver(this@observeLifecycleEvents)
+        onDispose {
+            lifecycle.removeObserver(this@observeLifecycleEvents)
+        }
+    }
+}
+
+
+
+
+//            // Open a specific media item using ParcelFileDescriptor.
+//            val resolver = context.contentResolver
+//
+////            try {
+//            val inputStream: InputStream? =
+//                LocalContext.current.contentResolver.openInputStream(photoUri.value!!)
+////            } catch (e: IOException) {
+////                null
+////            }
+//
+//            inputStream?.bufferedReader()?.use { reader ->
+//                val content = StringBuilder()
+//                reader.forEachLine { line ->
+//                    // Process each line of the file here
+//                    content.append(line).append('\n')
+//                }
+//                // Use the content string as needed
+//                println("File content: $content")
+//            }
+
+//                        val csvFile = context.contentResolver.openInputStream(photoUri.value!!)
+//                        val isr = InputStreamReader(csvFile, "UTF-8")
+//                        println("csv output "+BufferedReader(isr).readLines())
+//                        isr.close()
+
+
+
+
+navigation nested graph
+    NavHost(navController = navController, startDestination = Screen.MainView.route) {
+        composable(Screen.MainView.route) {
+            HomeScreen(navController)
+        }
+        composable(Screen.detailView.route) {
+            ContactListScreen(navController)
+        }
+
+
+//        navigation(route = "",  startDestination = Screen.MainView.route) {
+//            composable(Screen.MainView.route) {
+//                HomeScreen(navController)
+//            }
+//            composable(Screen.detailView.route) {
+//                ContactListScreen(navController)
+//            }
+//        }
+    }
+
+
+
+     */
 }

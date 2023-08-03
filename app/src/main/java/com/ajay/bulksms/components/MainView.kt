@@ -1,9 +1,18 @@
 package com.ajay.bulksms.components
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +40,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,27 +48,48 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.ajay.bulksms.MainViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
+
+
+@Composable
+fun MainView() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = Screen.MainView.route) {
+        composable(Screen.MainView.route) {
+            HomeScreen(navController)
+        }
+        composable(Screen.detailView.route) {
+            ContactListScreen(navController)
+        }
+    }
+}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainView(
+fun HomeScreen(
+    navController: NavHostController,
     viewModel: MainViewModel = viewModel()
 ) {
     val smsMessage = viewModel.smsMessage
     val startRange = viewModel.startRange
     val endRange = viewModel.endRange
+    var resultMessage: String
+    val context = LocalContext.current
 
     val sendSMSPermissionState = rememberPermissionState(
-        android.Manifest.permission.SEND_SMS
+        permission = android.Manifest.permission.SEND_SMS
     )
 
     Surface(
@@ -100,7 +131,10 @@ fun MainView(
                             fontSize = 20.sp,
                             textAlign = TextAlign.Right,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Red
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                navController.navigate("detailView")
+                            }
                         )
                     }
                 }
@@ -147,7 +181,6 @@ fun MainView(
                                     .verticalScroll(rememberScrollState())
                                     .padding(8.dp)
                             ) {
-
                                 repeat(viewModel.contactsList.size) {
                                     val contact = viewModel.contactsList[it]
                                     key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
@@ -200,6 +233,9 @@ fun MainView(
                                     modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
                                 )
                             }
+                        }
+                        Column {
+                            PhotoPickerDemoScreen()
                         }
 
                         Column(
@@ -257,13 +293,14 @@ fun MainView(
                                 .background(Color.White)
                                 .padding(10.dp, 30.dp, 10.dp, 10.dp)
                                 .fillMaxWidth(),
-                                //.weight(1f),
+                            //.weight(1f),
                             verticalArrangement = Arrangement.Bottom
                         ) {
                             Button(
                                 onClick = {
                                     if (sendSMSPermissionState.status.isGranted) {
-                                        viewModel.sendSMSTemp()
+                                        resultMessage = viewModel.sendSMSTemp()
+                                        Toast.makeText(context, resultMessage, Toast.LENGTH_SHORT).show()
                                     } else {
                                         sendSMSPermissionState.launchPermissionRequest()
                                     }
@@ -300,6 +337,81 @@ fun MainPreview() {
         MainView()
     }
 }
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun PhotoPickerDemoScreen() {
+    val context = LocalContext.current
+
+    //The URI of the photo that the user has picked
+    //var photoUri: Uri? by remember { mutableStateOf(null) }
+    //val uri = remember { mutableStateOf<Uri?>(null) }
+    //The launcher we will use for the PickVisualMedia contract.
+    //When .launch()ed, this will display the photo picker.
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        //When the user has selected a photo, its URI is returned here
+        extractCSVFile(uri, context = context)
+    }
+
+    if (Build.VERSION.SDK_INT >= 30) {
+        val readExternalStoragePermissionState = rememberPermissionState(
+            permission = android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
+        )
+        if (readExternalStoragePermissionState.status.isGranted) {
+            Toast.makeText(context, "permission granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "permission not granted", Toast.LENGTH_SHORT).show()
+            //readExternalStoragePermissionState.launchPermissionRequest()
+        }
+    }
+
+    Column {
+        Button(
+            onClick = {
+                launcher.launch(arrayOf("*/*"))
+            }
+        ) {
+            Text(text = "Open Document")
+        }
+    }
+}
+
+private fun extractCSVFile(uri: Uri?, context: Context) {
+    uri?.let {
+        try {
+            val inputStream = context.contentResolver.openInputStream(it)
+            inputStream?.bufferedReader()?.use { reader ->
+                var line: String? = reader.readLine()
+                while (line != null) {
+                    val data = line.split(",")
+                    println("CSV line data: $data")
+                    line = reader.readLine()
+                }
+            }
+            inputStream?.close()
+        } catch (e: SecurityException) {
+            // Handle any errors that may occur during file reading
+            println("Error reading CSV file: ${e.message}")
+            println("Error reading CSV file: ${e.stackTrace}")
+            if (e.message?.contains("com.android.externalstorage has no access to content") == true){
+                if (Build.VERSION.SDK_INT >= 30) {
+                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                    intent.data = Uri.parse("package:com.android.externalstorage")
+                    startActivity(context, intent, null)
+                } else {
+                    Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
+
+                }
+            } else {
+                Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
+            }
+        }catch (e: Exception) {
+            println("Error reading CSV file: ${e.message}")
+            println("Error reading CSV file: ${e.stackTrace}")
+        }
+    }
+}
+
 
 @Composable
 fun ChooseContactsList(
@@ -357,6 +469,7 @@ fun ChooseContactsList(
     }
 }
 
+/*
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraPermission(
@@ -371,3 +484,47 @@ fun CameraPermission(
 //        // Open Camera
 //    }
 }
+
+
+/**
+ * Composable helper for permission checking
+ *
+ * onDenied contains lambda for request permission
+ *
+ * @param permission permission for request
+ * @param onGranted composable for [PackageManager.PERMISSION_GRANTED]
+ * @param onDenied composable for [PackageManager.PERMISSION_DENIED]
+ */
+@Composable
+fun ComposablePermission(
+    permission: String,
+    onDenied: @Composable (requester: () -> Unit) -> Unit,
+    onGranted: @Composable () -> Unit
+) {
+    val ctx = LocalContext.current
+
+    // check initial state of permission, it may be already granted
+    var grantState by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                ctx,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    if (grantState) {
+        onGranted()
+    } else {
+        val launcher: ManagedActivityResultLauncher<String, Boolean> =
+            rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+                grantState = it
+            }
+        onDenied { launcher.launch(permission) }
+    }
+}
+
+//                    val csvFile = context.contentResolver.openInputStream(photoUri.value!!)
+//                    val isr = InputStreamReader(csvFile, "UTF-8")
+//                    println(BufferedReader(isr).readLines())
+
+ */
