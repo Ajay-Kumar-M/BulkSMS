@@ -30,7 +30,8 @@ private val LightColorPalette = lightColors(
 @Composable
 fun BulkSMSTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
-        DarkColorPalette
+        LightColorPalette
+        //DarkColorPalette
     } else {
         LightColorPalette
     }

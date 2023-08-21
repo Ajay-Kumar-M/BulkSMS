@@ -71,12 +71,14 @@ fun SelectContactsView() {
                         count = 15,
                         key = null
                     ) {
-                        ContactView(
-                            initials = "AK",
-                            name = "Ajay Kumar M",
-                            mobileNumber = "+91 76253888982",
-                            isSelected = remember { mutableStateOf(false) }
-                        )
+//                        ContactView(
+//                            id = 11111111,
+//                            initials = "AK",
+//                            name = "Ajay Kumar M",
+//                            mobileNumber = "+91 76253888982",
+//                            isSelected = remember { mutableStateOf(false) },
+//                            viewModel = TODO()
+//                        )
                     }
                 }
 

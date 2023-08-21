@@ -1,6 +1,11 @@
 package com.ajay.bulksms
 
+import android.Manifest
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,17 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContactPhone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
@@ -33,11 +32,10 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,18 +43,24 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ajay.bulksms.components.LabelAndPlaceHolderTextField
 import com.ajay.bulksms.components.OutlinedTextFieldUI
 import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+
 
 @Composable
-fun TestView(
+fun CSVView(
     navController: NavController,
-    viewModel: TestActivityViewModel = viewModel()
+    viewModel: CSVActivityViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val testSmsMessage = viewModel.testSmsMessage
-    val phoneNumber = viewModel.phoneNumber
+    val testSmsMessage = viewModel.csvSmsMessage
+    val startRange = viewModel.startRange
+    val endRange = viewModel.endRange
 
     Surface(
         modifier = Modifier.fillMaxWidth()
@@ -98,85 +102,84 @@ fun TestView(
                             color = Color.Red,
                             modifier = Modifier
                                 .clickable {
-                                    navController.popBackStack(
-                                        Screen.testView.route,
-                                        inclusive = true
-                                    )
+                                    navController.popBackStack(Screen.CSVView.route, inclusive = true)
                                 }
                         )
                     }
                 }
             }
 
+            CSVPickerScreen(viewModel)
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp, 20.dp, 10.dp, 10.dp)
-            ) {
-                //val singlePhoneNumber = remember { mutableStateOf(TextFieldValue("")) }
-                val trailingIconView = @Composable {
-                    IconButton(
-                        onClick = {
-                            Toast.makeText(
-                                context,
-                                "Enter phone number manually.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                    ) {
-                        Icon(
-                            Icons.Default.ContactPhone,
-                            contentDescription = "",
-                            tint = Color.Black
-                        )
-                    }
+            ){
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LabelAndPlaceHolderTextField(
+                        "Start Range",
+                        "Enter a number",
+                        modifier = Modifier
+                            .weight(1.0f)
+                            .border(0.5.dp, color = Color.Black),
+                        startRange,
+                        onValueChanged = { viewModel.changeStartRange(it) }
+                    )
+
+                    Text(
+                        text = "-",
+                        fontSize = 20.sp
+                    )
+
+                    LabelAndPlaceHolderTextField(
+                        "End Range",
+                        "Enter a number",
+                        modifier = Modifier
+                            .weight(1.0f)
+                            .border(0.5.dp, color = Color.Black),
+                        endRange,
+                        onValueChanged = { viewModel.changeEndRange(it) }
+                    )
                 }
-                TextField(
-                    value = phoneNumber,
-                    onValueChange = {
-                        viewModel.changePhoneNumber(it)
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    label = { Text(text = "Enter - Phone number") },
-                    placeholder = { Text(text = "Enter single number to test the message") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(0.5.dp, color = Color.Black),
-                    colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
-                    trailingIcon = trailingIconView,
-                    shape = RectangleShape
-                )
 
                 Column(
                     modifier = Modifier
                         .background(Color.White)
                         .padding(0.dp, 40.dp, 0.dp, 0.dp)
 
-                ) {
+                ){
                     OutlinedTextFieldUI(
                         testSmsMessage,
-                        onMessageChanged = { viewModel.changeTestSmsMessage(it) }
+                        onMessageChanged = { viewModel.changeCSVSmsMessage(it) }
                     )
                 }
                 Column(
                     modifier = Modifier
+                        .background(Color.White)
                         .padding(10.dp, 30.dp, 10.dp, 10.dp)
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                         .weight(1f),
                     verticalArrangement = Arrangement.Bottom
-                ) {
+                ){
+
                     Text(
-                        text = "Result Message :",
+                        text="Result Message :",
                         fontSize = 20.sp,
                         textAlign = TextAlign.Left,
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(15.dp, 15.dp, 15.dp, 5.dp)
+                            .fillMaxWidth()
                     )
                     Text(
-                        text = viewModel.messageStatus,
+                        text=viewModel.messageStatus,
                         fontSize = 20.sp,
                         textAlign = TextAlign.Left,
                         color = Color.Black,
@@ -187,10 +190,9 @@ fun TestView(
                 }
                 Button(
                     onClick = {
-                        viewModel.sendTestSMS()
+                        viewModel.sendSMS()
                     },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     // Uses ButtonDefaults.ContentPadding by default
                     contentPadding = PaddingValues(
                         start = 10.dp,
@@ -212,13 +214,100 @@ fun TestView(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
+    val context = LocalContext.current
+
+    //The URI of the photo that the user has picked
+    //var photoUri: Uri? by remember { mutableStateOf(null) }
+    //val uri = remember { mutableStateOf<Uri?>(null) }
+    //The launcher we will use for the PickVisualMedia contract.
+    //When .launch()ed, this will display the photo picker.
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        //When the user has selected a photo, its URI is returned here
+        viewModel.extractCSVFile(uri, context = context)
+    }
+
+    val readExternalStoragePermissionState = rememberPermissionState(
+        permission = Manifest.permission.MANAGE_EXTERNAL_STORAGE
+    )
+
+
+    Column (
+        modifier = Modifier
+            .background(Color.White)
+            .padding(10.dp, 30.dp, 10.dp, 10.dp)
+            .border(3.dp, Color.LightGray, RoundedCornerShape(3))
+            .fillMaxWidth()
+
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                .clickable {
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        launcher.launch(arrayOf("*/*"))
+                    } else {
+                        if (readExternalStoragePermissionState.status.isGranted) {
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Permission granted for reading Storage!",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                            launcher.launch(arrayOf("*/*"))
+                        } else {
+                            Toast
+                                .makeText(
+                                    context,
+                                    "Permission not granted for reading Storage",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                            readExternalStoragePermissionState.launchPermissionRequest()
+                        }
+                    }
+                }
+        ) {
+            Image(
+                painter = painterResource(R.drawable.text_snippet),
+                "Contact dropdown",
+                modifier = Modifier
+                    .size(30.dp)
+                    .align(Alignment.CenterVertically)
+            )
+
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
+                Text(
+                    text = "Select Document from Storage",
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
+                )
+                Text(
+                    text = "(* CSV should contain only one column with phone numbers alone.\n* Each row will be considered as a phone number.\n* Column header is also not necessary.)",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Left,
+                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
+                )
+            }
+
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun TestPreview() {
+fun CSVViewPreview() {
     BulkSMSTheme {
-        TestView(
+        CSVView(
             navController = NavHostController(LocalContext.current),
-            viewModel = TestActivityViewModel()
+            viewModel = CSVActivityViewModel()
         )
     }
 }

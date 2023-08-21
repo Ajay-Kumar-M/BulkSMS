@@ -1,13 +1,6 @@
 package com.ajay.bulksms.components
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,7 +19,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -41,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,19 +46,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ajay.bulksms.AppViewModelProvider
+import com.ajay.bulksms.CSVView
 import com.ajay.bulksms.MainViewModel
 import com.ajay.bulksms.R
+import com.ajay.bulksms.TestView
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-
 
 @Composable
 fun MainView() {
@@ -70,8 +69,14 @@ fun MainView() {
         composable(Screen.MainView.route) {
             HomeScreen(navController)
         }
-        composable(Screen.detailView.route) {
+        composable(Screen.selectContactView.route) {
             ContactListScreen(navController)
+        }
+        composable(Screen.testView.route) {
+            TestView(navController)
+        }
+        composable(Screen.CSVView.route) {
+            CSVView(navController)
         }
     }
 }
@@ -80,11 +85,9 @@ fun MainView() {
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val smsMessage = viewModel.smsMessage
-    val startRange = viewModel.startRange
-    val endRange = viewModel.endRange
     var resultMessage: String
     val context = LocalContext.current
 
@@ -92,215 +95,218 @@ fun HomeScreen(
         permission = android.Manifest.permission.SEND_SMS
     )
 
+    navController.currentBackStackEntry?.savedStateHandle?.getLiveData<MutableList<Int>>("SelectedUsers")?.observe(
+        LocalLifecycleOwner.current){
+        Log.d("MainInfo","$it")
+        viewModel.addSelectedContactsToMainScreen(it)
+    }
+    navController.currentBackStackEntry?.savedStateHandle?.remove<MutableList<Int>>("SelectedUsers")
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
     ) {
         Column {
             Row {
-                Card(
-                    elevation = 10.dp,
-                    modifier = Modifier.padding(1.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(
-                            text = "Bulk SMS",
-                            fontSize = 20.sp,
-                            textAlign = TextAlign.Start,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .graphicsLayer(alpha = 0.99f)
-                                .drawWithCache {
-                                    val brush =
-                                        Brush.horizontalGradient(listOf(Color.Red, Color.Yellow))
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(brush, blendMode = BlendMode.SrcAtop)
-                                    }
-                                }
-                        )
-
-                        Spacer(modifier = Modifier.weight(1.0f))
-
-                        Text(
-                            text = "Test",
-                            fontSize = 20.sp,
-                            textAlign = TextAlign.Right,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Red,
-                            modifier = Modifier.clickable {
-                                navController.navigate("detailView")
-                            }
-                        )
-                    }
-                }
-            }
-
-            Row {
-                Surface {
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
+                    Card(
+                        elevation = 10.dp,
+                        modifier = Modifier.padding(1.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .background(Color(0xFFE0E0E0))
-                                .border(BorderStroke(2.dp, Color(0xFFEEEEEE)))
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(8.dp)
                         ) {
                             Text(
-                                text = " Choose contacts",
+                                text = "Bulk SMS",
                                 fontSize = 20.sp,
-                                textAlign = TextAlign.Center,
-                                color = Color.Gray,
+                                textAlign = TextAlign.Start,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .padding(8.dp, 0.dp)
-                                    .align(Alignment.CenterVertically)
+                                    .graphicsLayer(alpha = 0.99f)
+                                    .drawWithCache {
+                                        val brush =
+                                            Brush.horizontalGradient(listOf(Color.Red, Color.Yellow))
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(brush, blendMode = BlendMode.SrcAtop)
+                                        }
+                                    }
                             )
+
                             Spacer(modifier = Modifier.weight(1.0f))
-                            Image(
-                                painter = painterResource(R.drawable.keyboard_arrow_down),
-                                "Contact dropdown",
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(Alignment.CenterVertically)
-                                    .padding(0.dp, 0.dp, 8.dp, 0.dp)
+
+                            Text(
+                                text = "Test",
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Right,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Red,
+                                modifier = Modifier.clickable {
+                                    if (sendSMSPermissionState.status.isGranted) {
+                                        navController.navigate("testView")
+                                    } else {
+                                        sendSMSPermissionState.launchPermissionRequest()
+                                    }
+                                }
                             )
                         }
+                    }
+                }
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+
+                Row {
+                    Surface {
                         Column(
                             modifier = Modifier
-                                .background(Color.White)
-                                .height(200.dp)
-                                .border(2.dp, Color.LightGray, RoundedCornerShape(0))
+                                .padding(8.dp)
                         ) {
-                            ChooseContactsList(
-                                Modifier
-                                    .verticalScroll(rememberScrollState())
-                                    .padding(8.dp)
+                            Row(
+                                modifier = Modifier
+                                    .background(Color(0xFFE0E0E0))
+                                    .border(BorderStroke(2.dp, Color(0xFFEEEEEE)))
+                                    .clickable {
+                                        navController.navigate("selectContactView")
+                                    }
                             ) {
-                                repeat(viewModel.contactsList.size) {
-                                    val contact = viewModel.contactsList[it]
-                                    key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
-                                        ContactEdit(
-                                            initials = contact.initials,
-                                            name = contact.name,
-                                            mobileNumber = contact.mobileNumber
-                                        ) {
-                                            viewModel.deleteUser(contact)
+                                Text(
+                                    text = " Choose contacts",
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = Color.Gray,
+                                    modifier = Modifier
+                                        .padding(8.dp, 0.dp)
+                                        .align(Alignment.CenterVertically)
+                                )
+                                Spacer(modifier = Modifier.weight(1.0f))
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate("selectContactView")
+                                    },
+                                ) {
+                                    Icon(
+                                        Icons.Default.Contacts,
+                                        contentDescription = "",
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .height(200.dp)
+                                    .border(2.dp, Color.LightGray, RoundedCornerShape(0))
+                            ) {
+                                ChooseContactsList(
+                                    Modifier
+                                        .verticalScroll(rememberScrollState())
+                                        .padding(8.dp)
+                                ) {
+                                    repeat(viewModel.contactsList.size) {
+                                        val contact = viewModel.contactsList[it]
+                                        key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
+                                            ContactEdit(
+                                                initials = contact.initials,
+                                                name = contact.name,
+                                                mobileNumber = contact.mobileNumber
+                                            ) {
+                                                viewModel.deleteUser(contact)
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        Column(
-                            modifier = Modifier
-                                .align(CenterHorizontally)
-                                .padding(0.dp, 20.dp, 0.dp, 0.dp)
-                        ) {
-                            Text(
-                                text = "(or)",
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Center,
-                                fontStyle = FontStyle.Italic
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .background(Color.White)
-                                .padding(10.dp, 30.dp, 10.dp, 10.dp)
-                                .border(3.dp, Color.LightGray, RoundedCornerShape(3))
-                                .fillMaxWidth()
-
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(20.dp, 10.dp, 20.dp, 10.dp)
+                            Column(
+                                modifier = Modifier
+                                    .align(CenterHorizontally)
+                                    .padding(0.dp, 20.dp, 0.dp, 0.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(R.drawable.text_snippet),
-                                    "Contact dropdown",
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterVertically)
-                                )
                                 Text(
-                                    text = "Extract contact from CSV",
+                                    text = "(or)",
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
+                                    fontStyle = FontStyle.Italic
                                 )
                             }
-                        }
-                        Column {
-                            PhotoPickerDemoScreen()
-                        }
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .padding(10.dp, 30.dp, 10.dp, 10.dp)
+                                    .border(3.dp, Color.LightGray, RoundedCornerShape(3))
+                                    .fillMaxWidth()
 
-                        Column(
-                            modifier = Modifier
-                                .background(Color.White)
-                                .padding(5.dp, 5.dp, 5.dp, 5.dp)
-                                .fillMaxWidth()
-
-                        ) {
-                            Row(
-                                modifier = Modifier.align(CenterHorizontally),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                LabelAndPlaceHolderTextField(
-                                    "Start Range",
-                                    "Enter a number",
+                                Row(
                                     modifier = Modifier
-                                        .weight(1.0f)
-                                        .border(0.5.dp, color = Color.Black),
-                                    startRange,
-                                    onValueChanged = { viewModel.changeStartRange(it) }
-                                )
+                                        .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                                        .clickable {
+                                            if (sendSMSPermissionState.status.isGranted) {
+                                                navController.navigate("CSVView")
+                                            } else {
+                                                sendSMSPermissionState.launchPermissionRequest()
+                                            }
+                                        }
+                                ) {
+                                    Image(
+                                        painter = painterResource(R.drawable.text_snippet),
+                                        "Contact dropdown",
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                    Text(
+                                        text = "Extract contact from CSV",
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
+                                    )
+                                }
+                            }
 
-                                Text(
-                                    text = "-",
-                                    fontSize = 20.sp
-                                )
-
-                                LabelAndPlaceHolderTextField(
-                                    "End Range",
-                                    "Enter a number",
-                                    modifier = Modifier
-                                        .weight(1.0f)
-                                        .border(0.5.dp, color = Color.Black),
-                                    endRange,
-                                    onValueChanged = { viewModel.changeEndRange(it) }
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .padding(10.dp, 40.dp, 10.dp, 10.dp)
+                            ) {
+                                OutlinedTextFieldUI(
+                                    smsMessage,
+                                    onMessageChanged = { viewModel.changeSmsMessage(it) }
                                 )
                             }
-                        }
 
-                        Column(
-                            modifier = Modifier
-                                .background(Color.White)
-                                .padding(10.dp, 40.dp, 10.dp, 10.dp)
-                        ) {
-                            OutlinedTextFieldUI(
-                                smsMessage,
-                                onMessageChanged = { viewModel.changeSmsMessage(it) }
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .background(Color.White)
-                                .padding(10.dp, 30.dp, 10.dp, 10.dp)
-                                .fillMaxWidth(),
-                            //.weight(1f),
-                            verticalArrangement = Arrangement.Bottom
-                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .padding(10.dp, 30.dp, 10.dp, 10.dp)
+                                    .fillMaxWidth(),
+                                verticalArrangement = Arrangement.Bottom
+                            ) {
+                                Text(
+                                    text="Result Message :",
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Left,
+                                    color = Color.Black,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .padding(15.dp, 15.dp, 15.dp, 5.dp)
+                                        .fillMaxWidth()
+                                )
+                                Text(
+                                    text=viewModel.messageStatus,
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Left,
+                                    color = Color.Black,
+                                    modifier = Modifier
+                                        .padding(5.dp, 5.dp, 5.dp, 20.dp)
+                                        .fillMaxWidth()
+                                )
+                            }
                             Button(
                                 onClick = {
                                     if (sendSMSPermissionState.status.isGranted) {
-                                        resultMessage = viewModel.sendSMSTemp()
-                                        Toast.makeText(context, resultMessage, Toast.LENGTH_SHORT).show()
+                                        viewModel.sendSMS()
                                     } else {
                                         sendSMSPermissionState.launchPermissionRequest()
                                     }
@@ -326,6 +332,7 @@ fun HomeScreen(
                 }
             }
         }
+
     }
 }
 
@@ -334,84 +341,11 @@ fun HomeScreen(
 @Composable
 fun MainPreview() {
     BulkSMSTheme {
-        MainView()
-    }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun PhotoPickerDemoScreen() {
-    val context = LocalContext.current
-
-    //The URI of the photo that the user has picked
-    //var photoUri: Uri? by remember { mutableStateOf(null) }
-    //val uri = remember { mutableStateOf<Uri?>(null) }
-    //The launcher we will use for the PickVisualMedia contract.
-    //When .launch()ed, this will display the photo picker.
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        //When the user has selected a photo, its URI is returned here
-        extractCSVFile(uri, context = context)
-    }
-
-    if (Build.VERSION.SDK_INT >= 30) {
-        val readExternalStoragePermissionState = rememberPermissionState(
-            permission = android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
+        HomeScreen(
+            navController = NavHostController(LocalContext.current)
         )
-        if (readExternalStoragePermissionState.status.isGranted) {
-            Toast.makeText(context, "permission granted", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(context, "permission not granted", Toast.LENGTH_SHORT).show()
-            //readExternalStoragePermissionState.launchPermissionRequest()
-        }
-    }
-
-    Column {
-        Button(
-            onClick = {
-                launcher.launch(arrayOf("*/*"))
-            }
-        ) {
-            Text(text = "Open Document")
-        }
     }
 }
-
-private fun extractCSVFile(uri: Uri?, context: Context) {
-    uri?.let {
-        try {
-            val inputStream = context.contentResolver.openInputStream(it)
-            inputStream?.bufferedReader()?.use { reader ->
-                var line: String? = reader.readLine()
-                while (line != null) {
-                    val data = line.split(",")
-                    println("CSV line data: $data")
-                    line = reader.readLine()
-                }
-            }
-            inputStream?.close()
-        } catch (e: SecurityException) {
-            // Handle any errors that may occur during file reading
-            println("Error reading CSV file: ${e.message}")
-            println("Error reading CSV file: ${e.stackTrace}")
-            if (e.message?.contains("com.android.externalstorage has no access to content") == true){
-                if (Build.VERSION.SDK_INT >= 30) {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = Uri.parse("package:com.android.externalstorage")
-                    startActivity(context, intent, null)
-                } else {
-                    Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
-
-                }
-            } else {
-                Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
-            }
-        }catch (e: Exception) {
-            println("Error reading CSV file: ${e.message}")
-            println("Error reading CSV file: ${e.stackTrace}")
-        }
-    }
-}
-
 
 @Composable
 fun ChooseContactsList(
@@ -526,5 +460,18 @@ fun ComposablePermission(
 //                    val csvFile = context.contentResolver.openInputStream(photoUri.value!!)
 //                    val isr = InputStreamReader(csvFile, "UTF-8")
 //                    println(BufferedReader(isr).readLines())
+
+
+//                            Image(
+//                                painter = painterResource(Icons.Default.Contacts), //R.drawable.keyboard_arrow_down),
+//                                "Contact dropdown",
+//                                modifier = Modifier
+//                                    .size(40.dp)
+//                                    .align(Alignment.CenterVertically)
+//                                    .padding(0.dp, 0.dp, 8.dp, 0.dp)
+//                                    .clickable {
+//                                        navController.navigate("selectContactView")
+//                                    }
+//                            )
 
  */

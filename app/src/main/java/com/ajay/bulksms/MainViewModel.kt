@@ -1,16 +1,21 @@
 package com.ajay.bulksms
 
-import android.telephony.SmsManager
-import android.text.TextUtils
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ajay.bulksms.components.SMSManagerImpl
+import com.ajay.bulksms.contactlist.Contacts
 import com.ajay.bulksms.contactlist.User
+import com.ajay.bulksms.database.ContactsRepository
 import com.ajay.bulksms.services.remote.RemoteService
 import com.ajay.bulksms.services.smsservice.SMSService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val contactsRepository: ContactsRepository) : ViewModel() {
 
     private var _contactsList = mutableListOf<User>().toMutableStateList()
     val contactsList: List<User>
@@ -20,55 +25,27 @@ class MainViewModel : ViewModel() {
     val smsMessage: TextFieldValue
         get() = _smsMessage.value
 
-    private val _startRange = mutableStateOf(TextFieldValue(""))
-    val startRange: TextFieldValue
-        get() = _startRange.value
-
-    private val _endRange = mutableStateOf(TextFieldValue(""))
-    val endRange: TextFieldValue
-        get() = _endRange.value
-
     private val smsService = SMSService(RemoteService())
 
+    private val smsManager: SMSManagerImpl by lazy { SMSManagerImpl(BulkSMSApplication.appContext) }
 
-    fun addContact(initials: String, name: String, mobileNumber: String) {
-//        _contactsList.value.add(User(1,initials, name, mobileNumber))
-        TODO()
-    }
+    private val _messageStatus = mutableStateOf("Send SMS to view result!")
+    val messageStatus: String
+        get() = _messageStatus.value
 
-    init {
-        _contactsList.addAll(
-            listOf(
-                User(1,"AK","Ajay Kumar1", "9876543210"),
-                User(2,"AK","Ajay Kumar2", "9876543210"),
-                User(3,"AK","Ajay Kumar3", "9876543210"),
-                User(4,"AK","Ajay Kumar4", "9876543210"),
-                User(5,"AK","Ajay Kumar5", "9876543210"),
-                User(6,"AK","Ajay Kumar6", "9876543210"),
-                User(7,"AK","Ajay Kumar7", "9876543210"),
-                User(8,"AK","Ajay Kumar8", "9876543210"),
-                User(9,"AK","Ajay Kumar9", "9876543210"),
-                User(10,"AK","Ajay Kumar10", "9876543210"),
-                User(11,"AK","Ajay Kumar11", "9876543210"),
-                User(12,"AK","Ajay Kumar12", "9876543210"),
-                User(13,"AK","Ajay Kumar13", "9876543210"),
-                User(14,"AK","Ajay Kumar14", "9876543210"),
-                User(15,"AK","Ajay Kumar15", "9876543210"),
-                User(16,"AK","Ajay Kumar16", "9876543210")
-            )
-        )
+    fun addSelectedContactsToMainScreen(usersList: MutableList<Int>) {
+        contactsRepository.getContacts(*usersList.toIntArray())
+            .collectA(viewModelScope) { contact ->
+                contact?.let { contacts ->
+                    _contactsList.addAll(
+                        contacts.map { it.toUser() }
+                    )
+                }
+            }
     }
 
     fun deleteUser(user: User) {
         _contactsList.remove(user)
-    }
-
-    fun changeStartRange(startRange: TextFieldValue){
-        _startRange.value = startRange
-    }
-
-    fun changeEndRange(endRange: TextFieldValue){
-        _endRange.value = endRange
     }
 
     fun changeSmsMessage(smsMessageNew: TextFieldValue) {
@@ -76,36 +53,31 @@ class MainViewModel : ViewModel() {
     }
 
     fun sendSMS() {
-        val isMessageDelivered = smsService.sendSMS(
-            to = listOf("+918973745057"),
-            message = "Hai all"
-        )
-        println(isMessageDelivered)
-    }
-
-    fun sendSMSTemp() : String {
-        val editTextNumber = "8508115249"
-        val myNumber: String = editTextNumber.trim()
-        val myMsg: String = smsMessage.text.trim()
-
-        val finalMessage: String = if (myNumber == "" || myMsg == "") {
-            "Field cannot be empty"
-        } else {
-            if (TextUtils.isDigitsOnly(myNumber)) {
-                val smsManager: SmsManager = SmsManager.getDefault()
-                smsManager.sendTextMessage(myNumber, null, myMsg, null, null)
-                "Message Sent"
-            } else {
-                "Please enter the correct number"
+        if((smsMessage.text.isEmpty())||(contactsList.isEmpty())){
+            _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
+        } else{
+            smsManager.sendSMSMessage(contactsList.map { it.mobileNumber }, smsMessage){
+                _messageStatus.value = it
             }
         }
-        return finalMessage
     }
 
 }
 
+fun Contacts.toUser(): User = User(
+    this.id,
+    this.initials,
+    this.displayName,
+    this.phoneNumber
+)
 
-
+fun <T> Flow<T>.collectA(scope: CoroutineScope, action: (T) -> Unit) {
+    scope.launch {
+        this@collectA.collect {
+            action.invoke(it)
+        }
+    }
+}
 
 /*
 Bug codes
@@ -161,5 +133,14 @@ public void sendLongSMS() {
  (app: Application)
     : AndroidViewModel(app) {
     //: ViewModel() { //AndroidViewModel(Application()) {
+
+
+        val isMessageDelivered = smsService.sendSMS(
+            to = listOf("+918973745057"),
+            message = "Hai all"
+        )
+        println(isMessageDelivered)
+
+
 
 */

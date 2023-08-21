@@ -1,5 +1,8 @@
 package com.ajay.bulksms.contactlist
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class User(
     val id: Int,
     val initials: String,
@@ -7,10 +10,11 @@ data class User(
     val mobileNumber: String,
 )
 
-data class Contact(
-    val id: String,
+@Entity(tableName = "Contacts")
+data class Contacts(
+    @PrimaryKey//(autoGenerate = true)
+    val id: Int,
     val initials: String,
     val displayName: String,
-    val phoneNumber: String,
-    val isSelected: Boolean
+    val phoneNumber: String
 )
