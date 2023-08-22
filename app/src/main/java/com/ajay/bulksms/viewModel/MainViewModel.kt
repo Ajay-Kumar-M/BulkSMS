@@ -6,13 +6,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ajay.bulksms.BulkSMSApplication
+import com.ajay.bulksms.components.scopeCollect
 import com.ajay.bulksms.database.ContactsRepository
 import com.ajay.bulksms.model.Contact
 import com.ajay.bulksms.model.User
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 class MainViewModel(private val contactsRepository: ContactsRepository) : ViewModel() {
 
@@ -32,7 +30,7 @@ class MainViewModel(private val contactsRepository: ContactsRepository) : ViewMo
 
     fun addSelectedContactsToMainScreen(usersList: MutableList<Int>) {
         contactsRepository.getContacts(*usersList.toIntArray())
-            .collectA(viewModelScope) { contact ->
+            .scopeCollect(viewModelScope) { contact ->
                 contact?.let { contacts ->
                     _contactsList.addAll(
                         contacts.map { it.toUser() }
@@ -67,14 +65,6 @@ fun Contact.toUser(): User = User(
     this.displayName,
     this.phoneNumber
 )
-
-fun <T> Flow<T>.collectA(scope: CoroutineScope, action: (T) -> Unit) {
-    scope.launch {
-        this@collectA.collect {
-            action.invoke(it)
-        }
-    }
-}
 
 /*
 Bug codes

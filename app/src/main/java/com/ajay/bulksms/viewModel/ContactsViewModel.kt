@@ -2,15 +2,18 @@ package com.ajay.bulksms.viewModel
 
 import android.content.Context
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ajay.bulksms.components.scopeCollect
 import com.ajay.bulksms.database.ContactsRepository
 import com.ajay.bulksms.model.Contact
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val contactsRepository: ContactsRepository): ViewModel() {
@@ -29,16 +32,21 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
     val contactSearchString: TextFieldValue
         get() = _contactSearchString.value
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean>
+        get() = _isRefreshing.asStateFlow()
+
     init {
-        Log.d("ContactView","init called")
+        toggleCircularProgressIndicator()
         fetchAllContact()
     }
 
     private fun fetchAllContact() {
-        allContacts.collectA(viewModelScope) {
+        allContacts.scopeCollect(viewModelScope) {
             deviceContactsList.clear()
             deviceContactsList.addAll(it)
             _filterContact.addAll(deviceContactsList)
+            toggleCircularProgressIndicator()
         }
     }
 
@@ -47,6 +55,7 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
     }
 
     fun search() {
+        toggleCircularProgressIndicator()
         if(contactSearchString.text.isNotEmpty())
         {
             _filterContact.clear()
@@ -55,11 +64,17 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
                     it.displayName.contains(contactSearchString.text, true) or it.phoneNumber.contains(contactSearchString.text, true)
                 }
             )
+
         }
+        toggleCircularProgressIndicator()
     }
 
     fun removeContactFromSelectedList(id: Int){
         selectedContacts.remove(id)
+    }
+
+    fun toggleCircularProgressIndicator(){
+        _isRefreshing.value = !_isRefreshing.value
     }
 
     fun changeContactSearchString(searchStringNew: TextFieldValue) {
@@ -90,7 +105,6 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
             val numberColumn = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
 
             viewModelScope.launch {
-                //_deviceContactsList.clear()
                 contactsRepository.deleteAllContactsStream()
             }
 
@@ -134,5 +148,13 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
         }
     }
 
+//        viewModelScope.launch {
+//            allContacts.debounce(1000).collectLatest {
+//                deviceContactsList.clear()
+//                deviceContactsList.addAll(it)
+//                _filterContact.addAll(deviceContactsList)
+//                toggleCircularProgressIndicator()
+//            }
+//        }
 
  */

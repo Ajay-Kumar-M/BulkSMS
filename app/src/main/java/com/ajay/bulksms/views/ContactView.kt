@@ -24,8 +24,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,14 +54,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ajay.bulksms.AppViewModelProvider
-import com.ajay.bulksms.viewModel.ContactsViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.components.DisposableEffectWithLifecycle
 import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.components.customScrollbar
+import com.ajay.bulksms.viewModel.ContactsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -118,7 +121,10 @@ fun ContactViewHeader(
                     modifier = Modifier
                         .size(30.dp)
                         .align(Alignment.CenterVertically)
-                        .clickable { viewModel.getAllDeviceContacts(context) }
+                        .clickable {
+                            viewModel.toggleCircularProgressIndicator()
+                            viewModel.getAllDeviceContacts(context)
+                        }
                 )
 
                 Spacer(modifier = Modifier.weight(1.0f))
@@ -237,13 +243,15 @@ fun ContactListScreen(
     viewModel: ContactsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
 //    val contactsList = viewModel.allContacts.collectAsStateWithLifecycle(emptyList())
     val filteredContacts = viewModel.filterContact
     val readContactsPermissionState = rememberPermissionState(
         permission = Manifest.permission.READ_CONTACTS
     )
-    val lazyListState = rememberLazyListState()
+
     val contactSearchString = viewModel.contactSearchString
+    val lazyListState = rememberLazyListState()
 
     DisposableEffectWithLifecycle(
         onCreate = {
@@ -261,8 +269,9 @@ fun ContactListScreen(
             { viewModel.search() },
             { viewModel.changeContactSearchString(it) }
         )
+
         if (readContactsPermissionState.status.isGranted) {
-            if (filteredContacts.isEmpty()) {
+            if (filteredContacts.isEmpty() && !isRefreshing) {
                 Text(
                     text = "Please refresh to fetch contacts !",
                     fontSize = 20.sp,
@@ -272,27 +281,43 @@ fun ContactListScreen(
                         .fillMaxWidth()
                 )
             } else {
-
-                LazyColumn(
-                    modifier = Modifier.customScrollbar(lazyListState,false),
-                    state = lazyListState
-                ) {
-                    items(filteredContacts) { contact ->
-                        ContactView(
-                            id = contact.id,
-                            initials = contact.initials,
-                            name = contact.displayName,
-                            mobileNumber = contact.phoneNumber,
-                            isSelected = remember {
-                                mutableStateOf(false)
-                            },
-                            viewModel
+                if(isRefreshing) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(size = 28.dp),
+                            color = Color.Red
                         )
+                        Spacer(modifier = Modifier.width(width = 8.dp))
+                        Text(text = "Loading...")
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.customScrollbar(lazyListState, false),
+                        state = lazyListState
+                    ) {
+                        items(filteredContacts) { contact ->
+                            ContactView(
+                                id = contact.id,
+                                initials = contact.initials,
+                                name = contact.displayName,
+                                mobileNumber = contact.phoneNumber,
+                                isSelected = remember {
+                                    mutableStateOf(false)
+                                },
+                                viewModel
+                            )
+
+                        }
 
                     }
                 }
             }
-
         } else {
             Column(
                 modifier = Modifier
@@ -322,7 +347,6 @@ fun ContactListScreen(
                 }
             }
         }
-
     }
 }
 

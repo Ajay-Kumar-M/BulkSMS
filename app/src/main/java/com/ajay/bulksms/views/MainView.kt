@@ -52,12 +52,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ajay.bulksms.AppViewModelProvider
-import com.ajay.bulksms.viewModel.MainViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.components.CustomLayoutContact
 import com.ajay.bulksms.components.OutlinedTextFieldUI
 import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
+import com.ajay.bulksms.viewModel.MainViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -235,18 +235,18 @@ fun HomeScreen(
                                     .padding(10.dp, 30.dp, 10.dp, 10.dp)
                                     .border(3.dp, Color.LightGray, RoundedCornerShape(3))
                                     .fillMaxWidth()
+                                    .clickable {
+                                        if (sendSMSPermissionState.status.isGranted) {
+                                            navController.navigate("CSVView")
+                                        } else {
+                                            sendSMSPermissionState.launchPermissionRequest()
+                                        }
+                                    }
 
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .padding(20.dp, 10.dp, 20.dp, 10.dp)
-                                        .clickable {
-                                            if (sendSMSPermissionState.status.isGranted) {
-                                                navController.navigate("CSVView")
-                                            } else {
-                                                sendSMSPermissionState.launchPermissionRequest()
-                                            }
-                                        }
                                 ) {
                                     Image(
                                         painter = painterResource(R.drawable.text_snippet),
