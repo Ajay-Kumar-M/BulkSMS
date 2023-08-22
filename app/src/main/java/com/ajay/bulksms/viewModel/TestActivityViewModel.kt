@@ -1,11 +1,12 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.viewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import com.ajay.bulksms.components.SMSManagerImpl
+import com.ajay.bulksms.BulkSMSApplication
+import com.ajay.bulksms.services.smsservice.SMSManagerImpl
 
-class TestActivityViewModel() : ViewModel() {
+class TestActivityViewModel : ViewModel() {
 
     private val _testSmsMessage = mutableStateOf(TextFieldValue(""))
     val testSmsMessage: TextFieldValue
@@ -21,7 +22,7 @@ class TestActivityViewModel() : ViewModel() {
     val messageStatus: String
         get() = _messageStatus.value
 
-    val tempNumber: MutableList<String> = mutableListOf("")
+    private val tempNumber: MutableList<String> = mutableListOf("")
 
     fun changeTestSmsMessage(smsMessageNew: TextFieldValue) {
         _testSmsMessage.value = smsMessageNew

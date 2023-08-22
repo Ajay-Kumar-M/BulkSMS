@@ -1,4 +1,4 @@
-package com.ajay.bulksms.components
+package com.ajay.bulksms.services.smsservice
 
 import android.app.Activity
 import android.app.PendingIntent
@@ -12,7 +12,6 @@ import android.telephony.SmsManager
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
-
 
 class SMSManagerImpl(private val context: Context) {
 
@@ -36,7 +35,7 @@ class SMSManagerImpl(private val context: Context) {
         val SENT = "SMS_SENT"
         val DELIVERED = "SMS_DELIVERED"
         var deliveredMessageCount = 0
-        var spaceRemovedNumber = ""
+        var spaceRemovedNumber: String
 
         ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
             override fun onReceive(arg0: Context, arg1: Intent) {
@@ -162,7 +161,7 @@ class SMSManagerImpl(private val context: Context) {
     smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
 
 
-        //var deliveryBroadcastReciever: BroadcastReceiver = DeliverReceiver(context)
+        //var deliveryBroadcastReceiver: BroadcastReceiver = DeliverReceiver(context)
 
         internal class DeliverReceiver(context: Context) : BroadcastReceiver() {
     override fun onReceive(context: Context, arg1: Intent) {

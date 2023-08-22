@@ -1,16 +1,15 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.viewModel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ajay.bulksms.components.SMSManagerImpl
-import com.ajay.bulksms.contactlist.Contacts
-import com.ajay.bulksms.contactlist.User
+import com.ajay.bulksms.BulkSMSApplication
 import com.ajay.bulksms.database.ContactsRepository
-import com.ajay.bulksms.services.remote.RemoteService
-import com.ajay.bulksms.services.smsservice.SMSService
+import com.ajay.bulksms.model.Contact
+import com.ajay.bulksms.model.User
+import com.ajay.bulksms.services.smsservice.SMSManagerImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -24,8 +23,6 @@ class MainViewModel(private val contactsRepository: ContactsRepository) : ViewMo
     private val _smsMessage = mutableStateOf(TextFieldValue(""))
     val smsMessage: TextFieldValue
         get() = _smsMessage.value
-
-    private val smsService = SMSService(RemoteService())
 
     private val smsManager: SMSManagerImpl by lazy { SMSManagerImpl(BulkSMSApplication.appContext) }
 
@@ -64,7 +61,7 @@ class MainViewModel(private val contactsRepository: ContactsRepository) : ViewMo
 
 }
 
-fun Contacts.toUser(): User = User(
+fun Contact.toUser(): User = User(
     this.id,
     this.initials,
     this.displayName,

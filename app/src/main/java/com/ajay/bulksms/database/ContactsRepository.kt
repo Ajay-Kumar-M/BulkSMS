@@ -1,6 +1,6 @@
 package com.ajay.bulksms.database
 
-import com.ajay.bulksms.contactlist.Contacts
+import com.ajay.bulksms.model.Contact
 import kotlinx.coroutines.flow.Flow
 
 
@@ -9,28 +9,28 @@ import kotlinx.coroutines.flow.Flow
  */
 interface ContactsRepository {
 
-    var allContacts: Flow<List<Contacts>>
+    var allContacts: Flow<List<Contact>>
     /**
      * Retrieve all the items from the the given data source.
      */
-    fun getAllContactsStream(): Flow<List<Contacts>>
+    fun getAllContactsStream(): Flow<List<Contact>>
 
     /**
      * Retrieve an item from the given data source that matches with the [id].
      */
-    fun getContactStream(id: Int): Flow<Contacts?>
+    fun getContactStream(id: Int): Flow<Contact?>
 
-    fun getContacts(vararg ids: Int): Flow<List<Contacts>?>
+    fun getContacts(vararg ids: Int): Flow<List<Contact>?>
 
     /**
      * Insert item in the data source
      */
-    suspend fun insertContactStream(repo: Contacts)
+    suspend fun insertContactStream(contact: Contact)
 
     /**
      * Delete item from the data source
      */
-    suspend fun deleteContactStream(repo: Contacts)
+    suspend fun deleteContactStream(contact: Contact)
 
     /**
      * Delete all items from the data source

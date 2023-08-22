@@ -1,4 +1,4 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.views
 
 import android.Manifest
 import android.os.Build
@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ajay.bulksms.viewModel.CSVActivityViewModel
+import com.ajay.bulksms.R
 import com.ajay.bulksms.components.LabelAndPlaceHolderTextField
 import com.ajay.bulksms.components.OutlinedTextFieldUI
 import com.ajay.bulksms.components.Screen
@@ -57,7 +59,6 @@ fun CSVView(
     navController: NavController,
     viewModel: CSVActivityViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val testSmsMessage = viewModel.csvSmsMessage
     val startRange = viewModel.startRange
     val endRange = viewModel.endRange
@@ -219,9 +220,6 @@ fun CSVView(
 fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
     val context = LocalContext.current
 
-    //The URI of the photo that the user has picked
-    //var photoUri: Uri? by remember { mutableStateOf(null) }
-    //val uri = remember { mutableStateOf<Uri?>(null) }
     //The launcher we will use for the PickVisualMedia contract.
     //When .launch()ed, this will display the photo picker.
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -311,3 +309,9 @@ fun CSVViewPreview() {
         )
     }
 }
+
+/*
+    //The URI of the photo that the user has picked
+    //var photoUri: Uri? by remember { mutableStateOf(null) }
+    //val uri = remember { mutableStateOf<Uri?>(null) }
+ */

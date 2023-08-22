@@ -4,9 +4,9 @@ package com.ajay.bulksms.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.dp
  */
 
 
-@Composable
 fun Modifier.customScrollbar(
     state: LazyListState,
     horizontal: Boolean,
@@ -71,7 +70,7 @@ fun Modifier.customScrollbar(
     fadeInAnimationDurationMs: Int = 150,
     fadeOutAnimationDurationMs: Int = 500,
     fadeOutAnimationDelayMs: Int = 1000,
-): Modifier {
+): Modifier = composed {
     check(thickness > 0.dp) { "Thickness must be a positive integer." }
     check(fixedKnobRatio == null || fixedKnobRatio < 1f) {
         "A fixed knob ratio must be smaller than 1."
@@ -112,9 +111,10 @@ fun Modifier.customScrollbar(
     animateFloatAsState(
         targetValue = targetAlpha,
         animationSpec =
-        tween(delayMillis = animationDelayMs, durationMillis = animationDurationMs))
+        tween(delayMillis = animationDelayMs, durationMillis = animationDurationMs), label = ""
+    )
 
-    return drawWithContent {
+    drawWithContent {
         drawContent()
 
         state.layoutInfo.visibleItemsInfo.firstOrNull()?.let { firstVisibleItem ->
@@ -152,7 +152,7 @@ fun Modifier.customScrollbar(
                 // How large should the knob be.
                 val knobSize =
                     fixedKnobRatio?.let { it * viewportSize }
-                        ?: (viewportSize * viewportSize) / estimatedFullListSize
+                        ?: ((viewportSize * viewportSize) / estimatedFullListSize)
 
                 // Draw the track
                 drawRoundRect(

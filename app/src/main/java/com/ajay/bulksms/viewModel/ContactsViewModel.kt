@@ -1,4 +1,4 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.viewModel
 
 import android.content.Context
 import android.provider.ContactsContract
@@ -8,24 +8,24 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ajay.bulksms.contactlist.Contacts
 import com.ajay.bulksms.database.ContactsRepository
+import com.ajay.bulksms.model.Contact
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(private val contactsRepository: ContactsRepository): ViewModel() {
 
-    var _filterContact = mutableListOf<Contacts>().toMutableStateList()
-    val filterContact: List<Contacts>
+    private var _filterContact = mutableListOf<Contact>().toMutableStateList()
+    val filterContact: List<Contact>
         get() = _filterContact.toList()
 
-    var deviceContactsList: MutableList<Contacts> = mutableListOf()
+    private var deviceContactsList: MutableList<Contact> = mutableListOf()
 
-    val allContacts: Flow<List<Contacts>> = contactsRepository.getAllContactsStream()
+    private val allContacts: Flow<List<Contact>> = contactsRepository.getAllContactsStream()
 
     var selectedContacts : MutableList<Int> =  mutableListOf()
 
-    val _contactSearchString = mutableStateOf(TextFieldValue(""))
+    private val _contactSearchString = mutableStateOf(TextFieldValue(""))
     val contactSearchString: TextFieldValue
         get() = _contactSearchString.value
 
@@ -105,7 +105,7 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
                 }
                 viewModelScope.launch {
                     contactsRepository.insertContactStream(
-                        Contacts(
+                        Contact(
                             id,
                             initials,
                             displayName,
@@ -124,7 +124,7 @@ class ContactsViewModel(private val contactsRepository: ContactsRepository): Vie
     var testName: Flow<String> = flow {
         repeat(20) {
             delay(2000)
-            emit("Anbu $it")
+            emit("test $it")
         }
     }
 

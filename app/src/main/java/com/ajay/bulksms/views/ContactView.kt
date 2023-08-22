@@ -1,4 +1,4 @@
-package com.ajay.bulksms.components
+package com.ajay.bulksms.views
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -25,12 +25,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -45,7 +42,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -56,14 +52,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ajay.bulksms.AppViewModelProvider
-import com.ajay.bulksms.ContactsViewModel
+import com.ajay.bulksms.viewModel.ContactsViewModel
 import com.ajay.bulksms.R
+import com.ajay.bulksms.components.DisposableEffectWithLifecycle
+import com.ajay.bulksms.components.Screen
+import com.ajay.bulksms.components.customScrollbar
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -91,7 +87,7 @@ fun ContactViewHeader(
                     fontWeight = FontWeight.Bold,
                     color = Color.Blue,
                     modifier = Modifier.clickable {
-                        navController.popBackStack(Screen.selectContactView.route, inclusive = true)
+                        navController.popBackStack(Screen.SelectContactView.route, inclusive = true)
                     }
                 )
 
@@ -138,7 +134,7 @@ fun ContactViewHeader(
                             "SelectedUsers",
                             viewModel.selectedContacts
                         )
-                        navController.popBackStack(Screen.selectContactView.route, inclusive = true)
+                        navController.popBackStack(Screen.SelectContactView.route, inclusive = true)
                     }
                 )
             }
@@ -156,7 +152,6 @@ fun ContactView(
     isSelected: MutableState<Boolean>,
     viewModel: ContactsViewModel
 ) {
-    val context = LocalContext.current
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -384,20 +379,8 @@ fun SearchView(contactSearchString: TextFieldValue, onSearchClicked: () -> Unit,
                 focusManager.clearFocus()
                 keyboardController?.hide()
                 onSearchClicked()
-            },
-            onGo = {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-                onSearchClicked()
-            },
-            onSearch = {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-                onSearchClicked()
             }
         ),
-//        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-//        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         colors = TextFieldDefaults.textFieldColors(
             textColor = Color.Black,
             cursorColor = Color.Black,
@@ -411,48 +394,31 @@ fun SearchView(contactSearchString: TextFieldValue, onSearchClicked: () -> Unit,
     )
 }
 
+/*
+
+@Preview(showBackground = true)
 @Composable
-fun DisposableEffectWithLifecycle(
-    onCreate: () -> Unit = {},
-    onStart: () -> Unit = {},
-    onStop: () -> Unit = {},
-    onResume: () -> Unit = {},
-    onPause: () -> Unit = {},
-    onDestroy: () -> Unit = {},
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-) {
-    val currentOnCreate by rememberUpdatedState(onCreate)
-    val currentOnStart by rememberUpdatedState(onStart)
-    val currentOnStop by rememberUpdatedState(onStop)
-    val currentOnResume by rememberUpdatedState(onResume)
-    val currentOnPause by rememberUpdatedState(onPause)
-    val currentOnDestroy by rememberUpdatedState(onDestroy)
-
-    DisposableEffect(lifecycleOwner) {
-        val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> currentOnCreate()
-                Lifecycle.Event.ON_START -> currentOnStart()
-                Lifecycle.Event.ON_PAUSE -> currentOnPause()
-                Lifecycle.Event.ON_RESUME -> currentOnResume()
-                Lifecycle.Event.ON_STOP -> currentOnStop()
-                Lifecycle.Event.ON_DESTROY -> currentOnDestroy()
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(lifecycleEventObserver)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleEventObserver)
-        }
+fun DefaultPreview() {
+    BulkSMSTheme {
+        ContactListScreen()
     }
 }
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//    BulkSMSTheme {
-//        ContactListScreen()
-//    }
-//}
+//        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+//        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+
+
+            onGo = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+                onSearchClicked()
+            },
+            onSearch = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+                onSearchClicked()
+            }
+
+
+ */

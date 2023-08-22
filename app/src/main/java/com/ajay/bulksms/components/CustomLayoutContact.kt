@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.ajay.bulksms.R
 
 @Composable
-fun ContactEdit(
+fun CustomLayoutContact(
     initials: String = "AK",
     name: String? = "Ajay M",
     mobileNumber: String = "1234567890",
@@ -42,7 +42,6 @@ fun ContactEdit(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(5.dp)
-                //.shadow(3.dp)
         ) {
             Surface(
                 modifier = Modifier.size(25.dp),
@@ -106,7 +105,7 @@ fun ContactEditPreview() {
         ContactEdit(
             initials = "82",
             name = null,
-            mobileNumber = "+91 76253888982",
+            mobileNumber = "+91 76253888982"
         )
     }
 }

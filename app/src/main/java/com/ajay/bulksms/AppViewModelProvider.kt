@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.ajay.bulksms.viewModel.ContactsViewModel
+import com.ajay.bulksms.viewModel.MainViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire Inventory app
@@ -26,6 +28,7 @@ object AppViewModelProvider {
  */
 fun CreationExtras.inventoryApplication(): BulkSMSApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as BulkSMSApplication)
+
 
 /*
         // Initializer for ItemEditViewModel

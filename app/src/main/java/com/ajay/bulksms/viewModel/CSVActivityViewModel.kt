@@ -1,4 +1,4 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.viewModel
 
 import android.content.Context
 import android.content.Intent
@@ -11,9 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.ajay.bulksms.components.SMSManagerImpl
+import com.ajay.bulksms.BulkSMSApplication
+import com.ajay.bulksms.services.smsservice.SMSManagerImpl
 
-class CSVActivityViewModel() : ViewModel() {
+class CSVActivityViewModel : ViewModel() {
 
     private val _csvSmsMessage = mutableStateOf(TextFieldValue(""))
     val csvSmsMessage: TextFieldValue
@@ -27,24 +28,16 @@ class CSVActivityViewModel() : ViewModel() {
     val endRange: TextFieldValue
         get() = _endRange.value
 
-    private val _phoneNumber = mutableStateOf(TextFieldValue(""))
-    val phoneNumber: TextFieldValue
-        get() = _phoneNumber.value
-
     private val smsManager: SMSManagerImpl by lazy {  SMSManagerImpl(BulkSMSApplication.appContext) }
 
     private val _messageStatus = mutableStateOf("Send SMS to view result!")
     val messageStatus: String
         get() = _messageStatus.value
 
-    var csvNumbers : MutableList<String> = mutableListOf("")
+    private var csvNumbers : MutableList<String> = mutableListOf("")
 
     fun changeCSVSmsMessage(smsMessageNew: TextFieldValue) {
         _csvSmsMessage.value = smsMessageNew
-    }
-
-    fun changePhoneNumber(phoneNumberNew: TextFieldValue) {
-        _phoneNumber.value = phoneNumberNew
     }
 
     fun changeStartRange(startRange: TextFieldValue) {

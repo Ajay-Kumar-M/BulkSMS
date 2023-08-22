@@ -13,13 +13,13 @@ interface AppContainer {
 }
 
 /**
- * [AppContainer] implementation that provides instance of [OfflineReposRepository]
+ * [AppContainer] implementation that provides instance of [ContactsRepositoryImp]
  */
 class AppDataContainer(
     private val context: Context
 ) : AppContainer {
     /**
-     * Implementation for [RepoRepository]
+     * Implementation for [ContactsRepository]
      */
     override val contactsRepository: ContactsRepository by lazy {
         ContactsRepositoryImp(ContactsDatabase.getDatabase(context).contactsDao())

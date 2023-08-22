@@ -1,4 +1,4 @@
-package com.ajay.bulksms.components
+package com.ajay.bulksms.views
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -52,10 +52,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ajay.bulksms.AppViewModelProvider
-import com.ajay.bulksms.CSVView
-import com.ajay.bulksms.MainViewModel
+import com.ajay.bulksms.viewModel.MainViewModel
 import com.ajay.bulksms.R
-import com.ajay.bulksms.TestView
+import com.ajay.bulksms.components.CustomLayoutContact
+import com.ajay.bulksms.components.OutlinedTextFieldUI
+import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -69,10 +70,10 @@ fun MainView() {
         composable(Screen.MainView.route) {
             HomeScreen(navController)
         }
-        composable(Screen.selectContactView.route) {
+        composable(Screen.SelectContactView.route) {
             ContactListScreen(navController)
         }
-        composable(Screen.testView.route) {
+        composable(Screen.TestView.route) {
             TestView(navController)
         }
         composable(Screen.CSVView.route) {
@@ -88,8 +89,6 @@ fun HomeScreen(
     viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val smsMessage = viewModel.smsMessage
-    var resultMessage: String
-    val context = LocalContext.current
 
     val sendSMSPermissionState = rememberPermissionState(
         permission = android.Manifest.permission.SEND_SMS
@@ -206,7 +205,7 @@ fun HomeScreen(
                                     repeat(viewModel.contactsList.size) {
                                         val contact = viewModel.contactsList[it]
                                         key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
-                                            ContactEdit(
+                                            CustomLayoutContact(
                                                 initials = contact.initials,
                                                 name = contact.name,
                                                 mobileNumber = contact.mobileNumber

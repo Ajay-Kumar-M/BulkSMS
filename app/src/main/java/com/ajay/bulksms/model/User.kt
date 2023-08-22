@@ -1,4 +1,4 @@
-package com.ajay.bulksms.contactlist
+package com.ajay.bulksms.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,7 +11,7 @@ data class User(
 )
 
 @Entity(tableName = "Contacts")
-data class Contacts(
+data class Contact(
     @PrimaryKey//(autoGenerate = true)
     val id: Int,
     val initials: String,

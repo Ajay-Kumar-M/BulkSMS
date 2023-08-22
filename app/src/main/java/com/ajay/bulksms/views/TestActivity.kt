@@ -1,4 +1,4 @@
-package com.ajay.bulksms
+package com.ajay.bulksms.views
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ajay.bulksms.viewModel.TestActivityViewModel
 import com.ajay.bulksms.components.OutlinedTextFieldUI
 import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
@@ -99,7 +100,7 @@ fun TestView(
                             modifier = Modifier
                                 .clickable {
                                     navController.popBackStack(
-                                        Screen.testView.route,
+                                        Screen.TestView.route,
                                         inclusive = true
                                     )
                                 }
