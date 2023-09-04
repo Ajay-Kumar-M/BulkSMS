@@ -13,6 +13,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.ajay.bulksms.BulkSMSApplication
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class CSVActivityViewModel : ViewModel() {
 
@@ -36,6 +39,10 @@ class CSVActivityViewModel : ViewModel() {
 
     private var csvNumbers : MutableList<String> = mutableListOf("")
 
+    private val _isSendSMSButtonEnable = MutableStateFlow(true)
+    val isSendSMSButtonEnable: StateFlow<Boolean>
+        get() = _isSendSMSButtonEnable.asStateFlow()
+
     fun changeCSVSmsMessage(smsMessageNew: TextFieldValue) {
         _csvSmsMessage.value = smsMessageNew
     }
@@ -52,19 +59,13 @@ class CSVActivityViewModel : ViewModel() {
         if((csvSmsMessage.text.isEmpty())||(csvNumbers.isEmpty())){
             _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
         } else{
-//            Log.d("CSVView","list data: $csvNumbers")
-//            Log.d("CSVView","start range: ${startRange.text.toInt()}")
-//            Log.d("CSVView","end range: ${endRange.text.toInt()}")
-//            Log.d("CSVView","sub list: ${csvNumbers.subList(startRange.text.toInt()-1,endRange.text.toInt())}")
-//            Log.d("CSVView","sub list: ${csvNumbers[0]}")
-//            Log.d("CSVView","sub list: ${csvNumbers.subList(0,1)}")
-//            Log.d("CSVView","sub list: ${csvNumbers.subList(1,2)}")
+            _isSendSMSButtonEnable.value = false
             smsManager.sendSMSMessage(csvNumbers.subList(startRange.text.toInt()-1,endRange.text.toInt()).toList(), csvSmsMessage){
                 _messageStatus.value = it
+                _isSendSMSButtonEnable.value = true
             }
         }
     }
-
 
     fun extractCSVFile(uri: Uri?, context: Context) {
         csvNumbers.clear()

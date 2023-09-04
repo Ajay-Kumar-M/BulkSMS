@@ -92,11 +92,9 @@ fun HomeScreen(
     viewModel: MainViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val smsMessage = viewModel.smsMessage
-
     val sendSMSPermissionState = rememberPermissionState(
         permission = android.Manifest.permission.SEND_SMS
     )
-
     val isSendSMSButtonEnable by viewModel.isSendSMSButtonEnable.collectAsStateWithLifecycle()
 
     navController.currentBackStackEntry?.savedStateHandle?.getLiveData<MutableList<Int>>("SelectedUsers")?.observe(

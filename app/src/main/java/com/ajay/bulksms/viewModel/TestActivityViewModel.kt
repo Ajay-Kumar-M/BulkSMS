@@ -5,6 +5,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.ajay.bulksms.BulkSMSApplication
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class TestActivityViewModel : ViewModel() {
 
@@ -24,6 +27,10 @@ class TestActivityViewModel : ViewModel() {
 
     private val tempNumber: MutableList<String> = mutableListOf("")
 
+    private val _isSendSMSButtonEnable = MutableStateFlow(true)
+    val isSendSMSButtonEnable: StateFlow<Boolean>
+        get() = _isSendSMSButtonEnable.asStateFlow()
+
     fun changeTestSmsMessage(smsMessageNew: TextFieldValue) {
         _testSmsMessage.value = smsMessageNew
     }
@@ -33,10 +40,17 @@ class TestActivityViewModel : ViewModel() {
     }
 
     fun sendTestSMS() {
-        tempNumber.clear()
-        tempNumber.add(phoneNumber.text)
-        smsManager.sendSMSMessage(tempNumber.toList(), testSmsMessage) {
-            _messageStatus.value = it
+        if((testSmsMessage.text.isEmpty())||(phoneNumber.text.isEmpty())){
+            _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
+        } else {
+            _isSendSMSButtonEnable.value = false
+            tempNumber.clear()
+            tempNumber.add(phoneNumber.text)
+            smsManager.sendSMSMessage(tempNumber.toList(), testSmsMessage) {
+                _messageStatus.value = it
+                _isSendSMSButtonEnable.value = true
+            }
         }
     }
+
 }
