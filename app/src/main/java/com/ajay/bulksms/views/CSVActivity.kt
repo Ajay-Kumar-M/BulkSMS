@@ -43,12 +43,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.ajay.bulksms.viewModel.CSVActivityViewModel
 import com.ajay.bulksms.R
 import com.ajay.bulksms.components.LabelAndPlaceHolderTextField
 import com.ajay.bulksms.components.OutlinedTextFieldUI
 import com.ajay.bulksms.components.Screen
 import com.ajay.bulksms.ui.theme.BulkSMSTheme
+import com.ajay.bulksms.viewModel.CSVActivityViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -165,7 +165,7 @@ fun CSVView(
                         .padding(10.dp, 30.dp, 10.dp, 10.dp)
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .weight(1f),
+                        .weight(weight =1f),
                     verticalArrangement = Arrangement.Bottom
                 ){
 

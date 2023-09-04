@@ -25,8 +25,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -94,6 +97,8 @@ fun HomeScreen(
         permission = android.Manifest.permission.SEND_SMS
     )
 
+    val isSendSMSButtonEnable by viewModel.isSendSMSButtonEnable.collectAsStateWithLifecycle()
+
     navController.currentBackStackEntry?.savedStateHandle?.getLiveData<MutableList<Int>>("SelectedUsers")?.observe(
         LocalLifecycleOwner.current){
         Log.d("MainInfo","$it")
@@ -105,230 +110,230 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
             Row {
-                    Card(
-                        elevation = 10.dp,
-                        modifier = Modifier.padding(1.dp)
+                Card(
+                    elevation = 10.dp,
+                    modifier = Modifier.padding(1.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(8.dp)
-                        ) {
-                            Text(
-                                text = "Bulk SMS",
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .graphicsLayer(alpha = 0.99f)
-                                    .drawWithCache {
-                                        val brush =
-                                            Brush.horizontalGradient(listOf(Color.Red, Color.Yellow))
-                                        onDrawWithContent {
-                                            drawContent()
-                                            drawRect(brush, blendMode = BlendMode.SrcAtop)
-                                        }
-                                    }
-                            )
-
-                            Spacer(modifier = Modifier.weight(1.0f))
-
-                            Text(
-                                text = "Test",
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Right,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Red,
-                                modifier = Modifier.clickable {
-                                    if (sendSMSPermissionState.status.isGranted) {
-                                        navController.navigate("testView")
-                                    } else {
-                                        sendSMSPermissionState.launchPermissionRequest()
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-
-                Row {
-                    Surface {
-                        Column(
+                        Text(
+                            text = "Bulk SMS",
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Start,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .padding(8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .background(Color(0xFFE0E0E0))
-                                    .border(BorderStroke(2.dp, Color(0xFFEEEEEE)))
-                                    .clickable {
-                                        navController.navigate("selectContactView")
-                                    }
-                            ) {
-                                Text(
-                                    text = " Choose contacts",
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = Color.Gray,
-                                    modifier = Modifier
-                                        .padding(8.dp, 0.dp)
-                                        .align(Alignment.CenterVertically)
-                                )
-                                Spacer(modifier = Modifier.weight(1.0f))
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate("selectContactView")
-                                    },
-                                ) {
-                                    Icon(
-                                        Icons.Default.Contacts,
-                                        contentDescription = "",
-                                        tint = Color.Black
-                                    )
-                                }
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .height(200.dp)
-                                    .border(2.dp, Color.LightGray, RoundedCornerShape(0))
-                            ) {
-                                ChooseContactsList(
-                                    Modifier
-                                        .verticalScroll(rememberScrollState())
-                                        .padding(8.dp)
-                                ) {
-                                    repeat(viewModel.contactsList.size) {
-                                        val contact = viewModel.contactsList[it]
-                                        key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
-                                            CustomLayoutContact(
-                                                initials = contact.initials,
-                                                name = contact.name,
-                                                mobileNumber = contact.mobileNumber
-                                            ) {
-                                                viewModel.deleteUser(contact)
-                                            }
-                                        }
+                                .graphicsLayer(alpha = 0.99f)
+                                .drawWithCache {
+                                    val brush =
+                                        Brush.horizontalGradient(listOf(Color.Red, Color.Yellow))
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(brush, blendMode = BlendMode.SrcAtop)
                                     }
                                 }
-                            }
+                        )
 
-                            Column(
-                                modifier = Modifier
-                                    .align(CenterHorizontally)
-                                    .padding(0.dp, 20.dp, 0.dp, 0.dp)
-                            ) {
-                                Text(
-                                    text = "(or)",
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Center,
-                                    fontStyle = FontStyle.Italic
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .padding(10.dp, 30.dp, 10.dp, 10.dp)
-                                    .border(3.dp, Color.LightGray, RoundedCornerShape(3))
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        if (sendSMSPermissionState.status.isGranted) {
-                                            navController.navigate("CSVView")
-                                        } else {
-                                            sendSMSPermissionState.launchPermissionRequest()
-                                        }
-                                    }
+                        Spacer(modifier = Modifier.weight(1.0f))
 
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(20.dp, 10.dp, 20.dp, 10.dp)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.text_snippet),
-                                        "Contact dropdown",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .align(Alignment.CenterVertically)
-                                    )
-                                    Text(
-                                        text = "Extract contact from CSV",
-                                        fontSize = 20.sp,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
-                                    )
+                        Text(
+                            text = "Test",
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Right,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                if (sendSMSPermissionState.status.isGranted) {
+                                    navController.navigate("testView")
+                                } else {
+                                    sendSMSPermissionState.launchPermissionRequest()
                                 }
                             }
-
-                            Column(
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .padding(10.dp, 40.dp, 10.dp, 10.dp)
-                            ) {
-                                OutlinedTextFieldUI(
-                                    smsMessage,
-                                    onMessageChanged = { viewModel.changeSmsMessage(it) }
-                                )
-                            }
-
-                            Column(
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .padding(10.dp, 30.dp, 10.dp, 10.dp)
-                                    .fillMaxWidth(),
-                                verticalArrangement = Arrangement.Bottom
-                            ) {
-                                Text(
-                                    text="Result Message :",
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Left,
-                                    color = Color.Black,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .padding(15.dp, 15.dp, 15.dp, 5.dp)
-                                        .fillMaxWidth()
-                                )
-                                Text(
-                                    text=viewModel.messageStatus,
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Left,
-                                    color = Color.Black,
-                                    modifier = Modifier
-                                        .padding(5.dp, 5.dp, 5.dp, 20.dp)
-                                        .fillMaxWidth()
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    if (sendSMSPermissionState.status.isGranted) {
-                                        viewModel.sendSMS()
-                                    } else {
-                                        sendSMSPermissionState.launchPermissionRequest()
-                                    }
-                                },
-                                modifier = Modifier.align(CenterHorizontally),
-                                // Uses ButtonDefaults.ContentPadding by default
-                                contentPadding = PaddingValues(
-                                    start = 15.dp,
-                                    top = 10.dp,
-                                    end = 15.dp,
-                                    bottom = 10.dp
-                                )
-                            ) {
-                                Text(
-                                    text = "Send Message",
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = Color.White
-                                )
+                        )
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(10.dp)
+                    .weight(weight = 1f, fill = false)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(Color(0xFFE0E0E0))
+                        .border(BorderStroke(2.dp, Color(0xFFEEEEEE)))
+                        .clickable {
+                            navController.navigate("selectContactView")
+                        }
+                ) {
+                    Text(
+                        text = " Choose contacts",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .padding(8.dp, 0.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    IconButton(
+                        onClick = {
+                            navController.navigate("selectContactView")
+                        },
+                    ) {
+                        Icon(
+                            Icons.Default.Contacts,
+                            contentDescription = "",
+                            tint = Color.Black
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .height(200.dp)
+                        .border(2.dp, Color.LightGray, RoundedCornerShape(0))
+                ) {
+                    ChooseContactsList(
+                        Modifier
+                            .verticalScroll(rememberScrollState())
+                            .padding(8.dp)
+                    ) {
+                        repeat(viewModel.contactsList.size) {
+                            val contact = viewModel.contactsList[it]
+                            key(contact.id) { //ref: https://developer.android.com/jetpack/compose/lifecycle
+                                CustomLayoutContact(
+                                    initials = contact.initials,
+                                    name = contact.name,
+                                    mobileNumber = contact.mobileNumber
+                                ) {
+                                    viewModel.deleteUser(contact)
+                                }
                             }
                         }
                     }
                 }
+
+                Column(
+                    modifier = Modifier
+                        .align(CenterHorizontally)
+                        .padding(0.dp, 15.dp, 0.dp, 0.dp)
+                ) {
+                    Text(
+                        text = "(or)",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(10.dp, 20.dp, 10.dp, 15.dp)
+                        .border(3.dp, Color.LightGray, RoundedCornerShape(3))
+                        .fillMaxWidth()
+                        .clickable {
+                            if (sendSMSPermissionState.status.isGranted) {
+                                navController.navigate("CSVView")
+                            } else {
+                                sendSMSPermissionState.launchPermissionRequest()
+                            }
+                        }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.text_snippet),
+                            "Contact dropdown",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text(
+                            text = "Extract contact from CSV",
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
+                        )
+                    }
+                }
+
+                Divider(color = Color.Black, thickness = 1.dp)
+
+                Column(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(10.dp, 20.dp, 10.dp, 20.dp)
+                ) {
+                    OutlinedTextFieldUI(
+                        smsMessage,
+                        onMessageChanged = { viewModel.changeSmsMessage(it) }
+                    )
+                }
+
+                Divider(color = Color.Black, thickness = 1.dp)
+
+                Column(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .padding(10.dp, 15.dp, 10.dp, 10.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Text(
+                        text="Result Message :",
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Left,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(15.dp, 15.dp, 15.dp, 5.dp)
+                            .fillMaxWidth()
+                    )
+                    Text(
+                        text=viewModel.messageStatus,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Left,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .padding(5.dp, 5.dp, 5.dp, 20.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+
+            Button(
+                enabled = isSendSMSButtonEnable,
+                onClick = {
+                    if (sendSMSPermissionState.status.isGranted) {
+                        viewModel.sendSMS()
+                    } else {
+                        sendSMSPermissionState.launchPermissionRequest()
+                    }
+                },
+                modifier = Modifier.align(CenterHorizontally),
+                // Uses ButtonDefaults.ContentPadding by default
+                contentPadding = PaddingValues(
+                    start = 15.dp,
+                    top = 10.dp,
+                    end = 15.dp,
+                    bottom = 10.dp
+                )
+            ) {
+                Text(
+                    text = "Send Message",
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    color = Color.White
+                )
             }
         }
 

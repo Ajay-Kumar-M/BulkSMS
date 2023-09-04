@@ -11,6 +11,9 @@ import com.ajay.bulksms.database.ContactsRepository
 import com.ajay.bulksms.model.Contact
 import com.ajay.bulksms.model.User
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel(private val contactsRepository: ContactsRepository) : ViewModel() {
 
@@ -27,6 +30,10 @@ class MainViewModel(private val contactsRepository: ContactsRepository) : ViewMo
     private val _messageStatus = mutableStateOf("Send SMS to view result!")
     val messageStatus: String
         get() = _messageStatus.value
+
+    private val _isSendSMSButtonEnable = MutableStateFlow(true)
+    val isSendSMSButtonEnable: StateFlow<Boolean>
+        get() = _isSendSMSButtonEnable.asStateFlow()
 
     fun addSelectedContactsToMainScreen(usersList: MutableList<Int>) {
         contactsRepository.getContacts(*usersList.toIntArray())
@@ -51,8 +58,10 @@ class MainViewModel(private val contactsRepository: ContactsRepository) : ViewMo
         if((smsMessage.text.isEmpty())||(contactsList.isEmpty())){
             _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
         } else{
+            _isSendSMSButtonEnable.value = false
             smsManager.sendSMSMessage(contactsList.map { it.mobileNumber }, smsMessage){
                 _messageStatus.value = it
+                _isSendSMSButtonEnable.value = true
             }
         }
     }

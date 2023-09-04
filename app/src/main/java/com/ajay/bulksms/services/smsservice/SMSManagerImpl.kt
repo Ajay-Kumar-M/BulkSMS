@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 class SMSManagerImpl(private val context: Context) {
 
     private val smsManager: SmsManager =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(SmsManager::class.java)
         } else {
             SmsManager.getDefault()
@@ -54,7 +54,7 @@ class SMSManagerImpl(private val context: Context) {
 
                     SmsManager.RESULT_ERROR_NULL_PDU -> finalMessage += "\n${arg1.getStringExtra("phoneNumber")} - Null PDU"
 
-                    SmsManager.RESULT_ERROR_RADIO_OFF -> finalMessage += "\n${arg1.getStringExtra("phoneNumber")} - Radio Off"
+                    SmsManager.RESULT_ERROR_RADIO_OFF -> finalMessage += "\n${arg1.getStringExtra("phoneNumber")} - Radio Off. Please check network service."
 
                     SmsManager.RESULT_CANCELLED -> finalMessage += "\n${arg1.getStringExtra("phoneNumber")} - Result Cancelled"
 
