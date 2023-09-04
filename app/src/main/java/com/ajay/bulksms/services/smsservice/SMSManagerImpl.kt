@@ -36,6 +36,7 @@ class SMSManagerImpl(private val context: Context) {
         val DELIVERED = "SMS_DELIVERED"
         var deliveredMessageCount = 0
         var spaceRemovedNumber: String
+        var smsParts : ArrayList<String>
 
         ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
             override fun onReceive(arg0: Context, arg1: Intent) {
@@ -123,23 +124,24 @@ class SMSManagerImpl(private val context: Context) {
             // Process each number if required
             spaceRemovedNumber = singlePhoneNumber.replace(" ","",true)
 
-            val sentPI = PendingIntent.getBroadcast(
+            val sentPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
                 context,
                 0,
                 Intent(SENT).putExtra("phoneNumber", spaceRemovedNumber),
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            ))
 
-            val deliveredPI = PendingIntent.getBroadcast(
+            val deliveredPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
                 context,
                 0,
                 Intent(DELIVERED).putExtra("phoneNumber", spaceRemovedNumber),
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+            ))
 
             if (PhoneNumberUtils.isGlobalPhoneNumber(spaceRemovedNumber)) {
                 try {
-                    smsManager.sendTextMessage(spaceRemovedNumber, null, myMsg, sentPI, deliveredPI)
+                    smsParts = smsManager.divideMessage(myMsg)
+                    smsManager.sendMultipartTextMessage(spaceRemovedNumber, null, smsParts, sentPI, deliveredPI)
                 } catch (e: Exception) {
                     Log.d("SMSManager", "Error sending SMS for $spaceRemovedNumber")
                     Log.d("SMSManager", "Exception ${e.message}")
@@ -155,6 +157,9 @@ class SMSManagerImpl(private val context: Context) {
 }
 
 /*
+
+
+//                    smsManager.sendTextMessage(spaceRemovedNumber, null, myMsg, sentPI, deliveredPI)
 
 // send large text message in parts
     ArrayList<String> parts = smsManager.divideMessage(message);
