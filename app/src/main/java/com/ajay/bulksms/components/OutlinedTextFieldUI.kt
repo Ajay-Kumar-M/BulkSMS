@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -26,15 +25,14 @@ fun OutlinedTextFieldUI(smsMessage: TextFieldValue, onMessageChanged: (TextField
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(22.dp))
-                .height(120.dp),
+                .background(Color.White, RoundedCornerShape(22.dp)),
             shape = RoundedCornerShape(22.dp),
             value = smsMessage,
             onValueChange = { onMessageChanged(it) },
-            maxLines = 6,
+            maxLines = 10,
             label = { Text("Please enter the message !") },
             //textStyle = MaterialTheme.typography.caption,
-            textStyle = TextStyle.Default.copy(fontSize = 20.sp)
+            textStyle = TextStyle.Default.copy(fontSize = 16.sp)
         )
     }
 }

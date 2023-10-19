@@ -69,23 +69,27 @@ class CSVActivityViewModel : ViewModel() {
 
     fun extractCSVFile(uri: Uri?, context: Context) {
         csvNumbers.clear()
+        Log.d("CSVView","fn called")
         uri?.let {
             try {
+                Log.d("CSVView","inside try")
                 val inputStream = context.contentResolver.openInputStream(it)
+                Log.d("CSVView","inside try2")
                 inputStream?.bufferedReader()?.use { reader ->
                     var line: String? = reader.readLine()
                     while (line != null) {
                         val data = line.split(",")
                         csvNumbers.add(data[0])
-                        Log.d("CSVView","CSV data: $data")
+                        //Log.d("CSVView","CSV data: $data")
                         line = reader.readLine()
                     }
                 }
+                Log.d("CSVView","inside try 3")
                 inputStream?.close()
             } catch (e: SecurityException) {
                 // Handle any errors that may occur during file reading
                 Log.d("CSVView","Error reading CSV file: ${e.message}")
-                Log.d("CSVView","Error reading CSV file: ${e.stackTrace}")
+                Log.d("CSVView","Error reading CSV file: ${e.localizedMessage}")
                 if (e.message?.contains("com.android.externalstorage has no access to content") == true){
                     if (Build.VERSION.SDK_INT >= 30) {
                         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)

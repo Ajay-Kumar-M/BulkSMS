@@ -1,5 +1,6 @@
 package com.ajay.bulksms.viewModel
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -39,7 +40,7 @@ class TestActivityViewModel : ViewModel() {
         _phoneNumber.value = phoneNumberNew
     }
 
-    fun sendTestSMS() {
+    fun sendTestSMS(context: Context) {
         if((testSmsMessage.text.isEmpty())||(phoneNumber.text.isEmpty())){
             _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
         } else {

@@ -192,7 +192,7 @@ fun TestView(
                 Button(
                     enabled = isSendSMSButtonEnable,
                     onClick = {
-                        viewModel.sendTestSMS()
+                        viewModel.sendTestSMS(context)
                     },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),

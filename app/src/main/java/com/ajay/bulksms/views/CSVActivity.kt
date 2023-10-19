@@ -65,6 +65,7 @@ fun CSVView(
     val startRange = viewModel.startRange
     val endRange = viewModel.endRange
     val isSendSMSButtonEnable by viewModel.isSendSMSButtonEnable.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxWidth()
@@ -270,6 +271,7 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
                                 .show()
                             readExternalStoragePermissionState.launchPermissionRequest()
                         }
+                        launcher.launch(arrayOf("*/*"))
                     }
                 }
         ) {
