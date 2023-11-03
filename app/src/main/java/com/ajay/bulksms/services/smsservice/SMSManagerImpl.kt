@@ -11,6 +11,10 @@ import android.telephony.SmsManager
 import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SMSManagerImpl(private val context: Context) {
 
@@ -21,6 +25,7 @@ class SMSManagerImpl(private val context: Context) {
             SmsManager.getDefault()
         }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun sendSMSMessage(
         phoneNumber: List<String>,
         smsMessage: TextFieldValue,
@@ -100,39 +105,44 @@ class SMSManagerImpl(private val context: Context) {
             }
         }, IntentFilter(DELIVERED), ContextCompat.RECEIVER_EXPORTED)
 
-        phoneNumber.forEach { singlePhoneNumber ->
-            //Log.d("SMSManager","inside foreach - $singlePhoneNumber - $deliveredMessageCount - $finalMessage")
-            // Process each number if required
-            spaceRemovedNumber = singlePhoneNumber.replace(" ","",true)
-            val sentPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
-                context,
-                0,
-                Intent(SENT).putExtra("phoneNumber", spaceRemovedNumber),
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            ))
-            val deliveredPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
-                context,
-                0,
-                Intent(DELIVERED).putExtra("phoneNumber", spaceRemovedNumber),
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            ))
+        GlobalScope.launch {
+
+            phoneNumber.forEach { singlePhoneNumber ->
+
+                //Log.d("SMSManager","inside foreach - $singlePhoneNumber - $deliveredMessageCount - $finalMessage")
+                // Process each number if required
+                spaceRemovedNumber = singlePhoneNumber.replace(" ","",true)
+                val sentPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    Intent(SENT).putExtra("phoneNumber", spaceRemovedNumber),
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                ))
+                val deliveredPI : ArrayList<PendingIntent> = arrayListOf(PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    Intent(DELIVERED).putExtra("phoneNumber", spaceRemovedNumber),
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                ))
 //            if (PhoneNumberUtils.isGlobalPhoneNumber(spaceRemovedNumber)) {
-            try {
-                smsParts = smsManager.divideMessage(myMsg)
-                Log.d("SMSManager","before send - $spaceRemovedNumber - $deliveredMessageCount - $finalMessage")
-                smsManager.sendMultipartTextMessage(spaceRemovedNumber, null, smsParts, sentPI, deliveredPI)
-            } catch (e: Exception) {
-                Log.d("SMSManager", "Error sending SMS for $spaceRemovedNumber")
-                Log.d("SMSManager", "Exception ${e.message}")
-                Log.d("SMSManager", "Exception ${e.stackTrace}")
-                finalMessage += "$phoneNumber - Error sending SMS"
-            }
+                try {
+                    smsParts = smsManager.divideMessage(myMsg)
+                    Log.d("SMSManager","before send - $spaceRemovedNumber - $deliveredMessageCount - $finalMessage")
+                    smsManager.sendMultipartTextMessage(spaceRemovedNumber, null, smsParts, sentPI, deliveredPI)
+                } catch (e: Exception) {
+                    Log.d("SMSManager", "Error sending SMS for $spaceRemovedNumber")
+                    Log.d("SMSManager", "Exception ${e.message}")
+                    Log.d("SMSManager", "Exception ${e.stackTrace}")
+                    finalMessage += "$phoneNumber - Error sending SMS"
+                }
 //                finalMessage += "\n${spaceRemovedNumber} - Number not valid"
 //            } else {
 //                finalMessage += "\n${spaceRemovedNumber} - Number not valid"
 //            }
-            //Log.d("CSVView","completion called 2")
-            //completion(finalMessage)
+                //Log.d("CSVView","completion called 2")
+                //completion(finalMessage)
+                delay(2000)
+            }
         }
     }
 }
