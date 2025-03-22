@@ -66,6 +66,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -324,9 +325,9 @@ fun ContactListScreen(
                         }
                             .debounce(1000)
                             .collectLatest { index ->
-                                prefs.edit()
-                                    .putInt("scroll_position",index)
-                                    .apply ()
+                                prefs.edit() {
+                                    putInt("scroll_position", index)
+                                }
                         }
                     }
                     LazyColumn(
