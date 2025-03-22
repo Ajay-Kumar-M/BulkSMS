@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ajay.bulksms.BulkSMSApplication
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class TestActivityViewModel : ViewModel() {
 
@@ -47,9 +50,11 @@ class TestActivityViewModel : ViewModel() {
             _isSendSMSButtonEnable.value = false
             tempNumber.clear()
             tempNumber.add(phoneNumber.text)
-            smsManager.sendSMSMessage(tempNumber.toList(), testSmsMessage) {
-                _messageStatus.value = it
-                _isSendSMSButtonEnable.value = true
+            viewModelScope.launch(Dispatchers.IO) {
+                smsManager.sendSMSMessage(tempNumber.toList(), testSmsMessage) {
+                    _messageStatus.value = it
+                    _isSendSMSButtonEnable.value = true
+                }
             }
         }
     }

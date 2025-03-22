@@ -11,11 +11,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ajay.bulksms.BulkSMSApplication
 import com.ajay.bulksms.services.smsservice.SMSManagerImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class CSVActivityViewModel : ViewModel() {
 
@@ -60,9 +63,11 @@ class CSVActivityViewModel : ViewModel() {
             _messageStatus.value = "Either of the input fields are empty, try after checking inputs."
         } else{
             _isSendSMSButtonEnable.value = false
-            smsManager.sendSMSMessage(csvNumbers.subList(startRange.text.toInt()-1,endRange.text.toInt()).toList(), csvSmsMessage){
-                _messageStatus.value = it
-                _isSendSMSButtonEnable.value = true
+            viewModelScope.launch(Dispatchers.IO) {
+                smsManager.sendSMSMessage(csvNumbers.subList(startRange.text.toInt()-1,endRange.text.toInt()).toList(), csvSmsMessage){
+                    _messageStatus.value = it
+                    _isSendSMSButtonEnable.value = true
+                }
             }
         }
     }
