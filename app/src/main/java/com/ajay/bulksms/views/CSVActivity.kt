@@ -2,6 +2,7 @@ package com.ajay.bulksms.views
 
 import android.Manifest
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -225,6 +226,7 @@ fun CSVView(
 fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
     val context = LocalContext.current
 
+    //val result = remember { mutableStateListOf<Uri?>(null) }
     //The launcher we will use for the PickVisualMedia contract.
     //When .launch()ed, this will display the photo picker.
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -233,9 +235,11 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
     }
 
     val readExternalStoragePermissionState = rememberPermissionState(
-        permission = Manifest.permission.MANAGE_EXTERNAL_STORAGE
+        permission = Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    @OptIn(ExperimentalPermissionsApi::class)
+    val permissionState = rememberPermissionState(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
 
     Column (
         modifier = Modifier
@@ -249,8 +253,22 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
             modifier = Modifier
                 .padding(20.dp, 10.dp, 20.dp, 10.dp)
                 .clickable {
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        launcher.launch(arrayOf("*/*"))
+                    permissionState.launchPermissionRequest()
+                    Toast
+                                .makeText(
+                                    context,
+                                    "${permissionState.status.isGranted}",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+                    if (Build.VERSION.SDK_INT >= 30) {Toast
+                        .makeText(
+                            context,
+                            "Inside",
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                        launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
                     } else {
                         if (readExternalStoragePermissionState.status.isGranted) {
                             Toast
@@ -260,7 +278,7 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
                                     Toast.LENGTH_SHORT
                                 )
                                 .show()
-                            launcher.launch(arrayOf("*/*"))
+                            launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
                         } else {
                             Toast
                                 .makeText(
@@ -269,9 +287,8 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
                                     Toast.LENGTH_SHORT
                                 )
                                 .show()
-                            readExternalStoragePermissionState.launchPermissionRequest()
                         }
-                        launcher.launch(arrayOf("*/*"))
+                        launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
                     }
                 }
         ) {

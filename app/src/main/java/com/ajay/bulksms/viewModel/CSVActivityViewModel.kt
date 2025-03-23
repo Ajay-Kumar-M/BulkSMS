@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ajay.bulksms.BulkSMSApplication
@@ -96,10 +98,14 @@ class CSVActivityViewModel : ViewModel() {
                 Log.d("CSVView","Error reading CSV file: ${e.message}")
                 Log.d("CSVView","Error reading CSV file: ${e.localizedMessage}")
                 if (e.message?.contains("com.android.externalstorage has no access to content") == true){
-                    if (Build.VERSION.SDK_INT >= 30) {
+                    if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+//                      lateinit var requestPermissionLauncher: ActivityResultLauncher<Intent>
+                        Toast.makeText(context, "Allow access to \'External Storage\' for selecting Files from custom location!", Toast.LENGTH_LONG).show()
+                        // Permission not granted, request it
                         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = Uri.parse("package:com.android.externalstorage")
+                        intent.data = "package:com.android.externalstorage".toUri()
                         ContextCompat.startActivity(context, intent, null)
+//                      requestPermissionLauncher.launch(intent)
                     } else {
                         Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
                     }
