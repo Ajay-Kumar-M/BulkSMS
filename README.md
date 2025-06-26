@@ -18,7 +18,7 @@ SMS: Android PendingIntent-based delivery<br/>
 Permissions: Jetpack Compose-compatible permission handling<br/><br/>
 ## 🚀 Getting Started<br/>
 Clone the repository:<br/>
-git clone https://github.com/yourusername/bulk-sms-sender.git
+git clone [https://github.com/yourusername/bulk-sms-sender.git](https://github.com/Ajay-Kumar-M/BulkSMS.git) <br/>
 Open in Android Studio.<br/>
 Grant the necessary permissions on your test device:<br/>
 SEND_SMS<br/>
