@@ -25,6 +25,6 @@ SEND_SMS<br/>
 READ_CONTACTS<br/>
 Run the app and start sending messages via CSV or contact selection.<br/><br/>
 ## 📸 Screenshots<br/>
-![Screenshot_20250626_163940_BulkSMS](https://github.com/user-attachments/assets/49497c39-135c-4df5-a0bb-f941fb8b0b07)<br/>
-![Screenshot_20250626_163944_BulkSMS](https://github.com/user-attachments/assets/288fc689-7021-460a-a8f5-2e4332989981)<br/>
-![Screenshot_20250626_164030_BulkSMS](https://github.com/user-attachments/assets/1cf3ce0c-c4b9-42fa-b330-3c568d99e219)<br/>
+<a href="url"><img src="https://github.com/user-attachments/assets/49497c39-135c-4df5-a0bb-f941fb8b0b07" align="left" height="500" width="260" ></a><br/>
+<a href="url"><img src="https://github.com/user-attachments/assets/288fc689-7021-460a-a8f5-2e4332989981" align="left" height="500" width="260" ></a><br/>
+<a href="url"><img src="https://github.com/user-attachments/assets/1cf3ce0c-c4b9-42fa-b330-3c568d99e219" align="left" height="500" width="260" ></a><br/>
