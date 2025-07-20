@@ -76,36 +76,28 @@ class CSVActivityViewModel : ViewModel() {
 
     fun extractCSVFile(uri: Uri?, context: Context) {
         csvNumbers.clear()
-        Log.d("CSVView","fn called")
         uri?.let {
             try {
-                Log.d("CSVView","inside try")
                 val inputStream = context.contentResolver.openInputStream(it)
-                Log.d("CSVView","inside try2")
                 inputStream?.bufferedReader()?.use { reader ->
                     var line: String? = reader.readLine()
                     while (line != null) {
                         val data = line.split(",")
                         csvNumbers.add(data[0])
-                        //Log.d("CSVView","CSV data: $data")
                         line = reader.readLine()
                     }
                 }
-                Log.d("CSVView","inside try 3")
                 inputStream?.close()
             } catch (e: SecurityException) {
                 // Handle any errors that may occur during file reading
-                Log.d("CSVView","Error reading CSV file: ${e.message}")
-                Log.d("CSVView","Error reading CSV file: ${e.localizedMessage}")
+                Log.d("CSVView","Error reading CSV file1: ${e.message}")
+                Log.d("CSVView","Error reading CSV file2: ${e.localizedMessage}")
                 if (e.message?.contains("com.android.externalstorage has no access to content") == true){
                     if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-//                      lateinit var requestPermissionLauncher: ActivityResultLauncher<Intent>
                         Toast.makeText(context, "Allow access to \'External Storage\' for selecting Files from custom location!", Toast.LENGTH_LONG).show()
-                        // Permission not granted, request it
                         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = "package:com.android.externalstorage".toUri()
                         ContextCompat.startActivity(context, intent, null)
-//                      requestPermissionLauncher.launch(intent)
                     } else {
                         Toast.makeText(context, "Security issue, please check storage permissions.", Toast.LENGTH_LONG).show()
                     }
@@ -119,3 +111,9 @@ class CSVActivityViewModel : ViewModel() {
         }
     }
 }
+
+/*
+
+//                      lateinit var requestPermissionLauncher: ActivityResultLauncher<Intent>
+//                      requestPermissionLauncher.launch(intent)
+ */

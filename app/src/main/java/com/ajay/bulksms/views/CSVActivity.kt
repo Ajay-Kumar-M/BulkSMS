@@ -2,7 +2,6 @@ package com.ajay.bulksms.views
 
 import android.Manifest
 import android.os.Build
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -66,7 +65,6 @@ fun CSVView(
     val startRange = viewModel.startRange
     val endRange = viewModel.endRange
     val isSendSMSButtonEnable by viewModel.isSendSMSButtonEnable.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxWidth()
@@ -225,21 +223,13 @@ fun CSVView(
 @Composable
 fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
     val context = LocalContext.current
-
-    //val result = remember { mutableStateListOf<Uri?>(null) }
-    //The launcher we will use for the PickVisualMedia contract.
-    //When .launch()ed, this will display the photo picker.
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        //When the user has selected a photo, its URI is returned here
+    val documentPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        //When the user has selected a document, its URI is returned here
         viewModel.extractCSVFile(uri, context = context)
     }
-
     val readExternalStoragePermissionState = rememberPermissionState(
         permission = Manifest.permission.READ_EXTERNAL_STORAGE
     )
-
-    @OptIn(ExperimentalPermissionsApi::class)
-    val permissionState = rememberPermissionState(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
 
     Column (
         modifier = Modifier
@@ -253,42 +243,14 @@ fun CSVPickerScreen(viewModel: CSVActivityViewModel) {
             modifier = Modifier
                 .padding(20.dp, 10.dp, 20.dp, 10.dp)
                 .clickable {
-                    permissionState.launchPermissionRequest()
-                    Toast
-                                .makeText(
-                                    context,
-                                    "${permissionState.status.isGranted}",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                    if (Build.VERSION.SDK_INT >= 30) {Toast
-                        .makeText(
-                            context,
-                            "Inside",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                        launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        documentPicker.launch(arrayOf("text/csv","text/comma-separated-values")) //The MIME Type what we want to select into the select file
                     } else {
                         if (readExternalStoragePermissionState.status.isGranted) {
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Permission granted for reading Storage!",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                            launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
+                            documentPicker.launch(arrayOf("text/csv","text/comma-separated-values")) //The MIME Type what we want to select into the select file
                         } else {
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Permission not granted for reading Storage",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
+                            Toast.makeText(context,"Permission not granted for reading Storage!",Toast.LENGTH_SHORT).show()
                         }
-                        launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
                     }
                 }
         ) {
@@ -334,7 +296,29 @@ fun CSVViewPreview() {
 }
 
 /*
+
+    //val result = remember { mutableStateListOf<Uri?>(null) }
+    //The launcher we will use for the PickVisualMedia contract.
+    //When .launch()ed, this will display the photo picker.
+
+
+
     //The URI of the photo that the user has picked
     //var photoUri: Uri? by remember { mutableStateOf(null) }
     //val uri = remember { mutableStateOf<Uri?>(null) }
+
+//                            launcher.launch(arrayOf("text/csv","text/comma-separated-values"))
+
+    @OptIn(ExperimentalPermissionsApi::class)
+    val permissionState = rememberPermissionState(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+    permissionState.launchPermissionRequest()
+                    Toast
+                                .makeText(
+                                    context,
+                                    "${permissionState.status.isGranted}",
+                                    Toast.LENGTH_SHORT
+                                )
+                                .show()
+
+
  */

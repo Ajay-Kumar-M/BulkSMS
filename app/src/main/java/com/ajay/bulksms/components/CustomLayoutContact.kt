@@ -26,9 +26,9 @@ import com.ajay.bulksms.R
 
 @Composable
 fun CustomLayoutContact(
-    initials: String = "AK",
-    name: String? = "Ajay M",
-    mobileNumber: String = "1234567890",
+    initials: String = "",
+    name: String? = "",
+    mobileNumber: String = "",
     onRemoveClicked: () -> Unit
 ) {
     Surface(
@@ -68,7 +68,15 @@ fun CustomLayoutContact(
             Column(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                if (name != null) Text(text = name) else Text(text = mobileNumber)
+                if (name != null) {
+                    if (name.length > 20) {
+                        Text(text = "${name.substring(0,20)}...")
+                    } else {
+                        Text(text = name)
+                    }
+                } else {
+                    Text(text = mobileNumber)
+                }
             }
             Surface(
                 modifier = Modifier.size(20.dp),
